@@ -71,4 +71,4 @@ func testSomeProtocol() async throws {
 }
 ```
 
-### [Documentation](https://metalheadsanya.github.io/swift-mock/)
+### [Documentation](https://metalheadsanya.github.io/swift-mock/documentation/swiftmock/)
