@@ -28,11 +28,14 @@ public struct MockMacro: PeerMacro {
 					name: mockTypeToken,
 					inheritanceClause: InheritanceClauseSyntax {
 						InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))
+						InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
 					}
 				) {
+					makeVerifyType(declaration)
 					for member in declaration.memberBlock.members {
 						if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
 							makeInvocationContainerProperty(funcDecl: funcDecl)
+							makeCallStorageProperty(funcDecl: funcDecl)
 							makeSignatureMethod(from: funcDecl)
 							funcDecl
 								.with(\.modifiers, DeclModifierListSyntax {
@@ -44,17 +47,6 @@ public struct MockMacro: PeerMacro {
 				}
 			)
 		]
-	}
-	
-	private static func makeTypePrefix(funcDecl: FunctionDeclSyntax) -> String {
-		var ownTypePrefix = ""
-		if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
-			ownTypePrefix += "Async"
-		}
-		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
-			ownTypePrefix += "Throws"
-		}
-		return ownTypePrefix
 	}
 	
 	private static func makeInvocationContainerProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {
@@ -75,13 +67,6 @@ public struct MockMacro: PeerMacro {
 		)
 	}
 	
-	private static func makeGenericType(_ name: TokenSyntax, from funcDecl: FunctionDeclSyntax) -> some TypeSyntaxProtocol {
-		return IdentifierTypeSyntax(
-			name: name,
-			genericArgumentClause: makeGenericArgumentClause(from: funcDecl)
-		)
-	}
-	
 	private static func makeSignatureMethod(from funcDecl: FunctionDeclSyntax) -> FunctionDeclSyntax {
 		let prefix = makeTypePrefix(funcDecl: funcDecl)
 		let signatureType = TokenSyntax.identifier(prefix + "MethodSignature")
@@ -98,35 +83,9 @@ public struct MockMacro: PeerMacro {
 				let parameters = funcDecl.signature.parameterClause.parameters
 				for (index, parameter) in parameters.enumerated().reversed() {
 					if index == parameters.count - 1 {
-						VariableDeclSyntax(
-							.let,
-							name: "argumentMatcher\(raw: index)",
-							initializer: InitializerClauseSyntax(
-								value: DeclReferenceExprSyntax(baseName: parameter.secondName ?? parameter.firstName)
-							)
-						)
+						"let argumentMatcher\(raw: index) = \(raw: parameter.secondName ?? parameter.firstName)"
 					} else {
-						VariableDeclSyntax(
-							.let,
-							name: "argumentMatcher\(raw: index)",
-							initializer: InitializerClauseSyntax(
-								value:
-									FunctionCallExprSyntax(
-										calledExpression: DeclReferenceExprSyntax(
-											baseName: .identifier("zip")
-										),
-										leftParen: .leftParenToken(),
-										rightParen: .rightParenToken()
-									) {
-										LabeledExprSyntax(
-											expression: DeclReferenceExprSyntax(baseName: parameter.secondName ?? parameter.firstName)
-										)
-										LabeledExprSyntax(
-											expression: DeclReferenceExprSyntax(baseName: .identifier("argumentMatcher\(index + 1)"))
-										)
-									}
-							)
-						)
+						"let argumentMatcher\(raw: index) = zip(\(raw: parameter.secondName ?? parameter.firstName), argumentMatcher\(raw: index + 1))"
 					}
 				}
 				ReturnStmtSyntax(
@@ -178,6 +137,88 @@ public struct MockMacro: PeerMacro {
 			})
 	}
 	
+	private static func makeMockMethodBody(from funcDecl: FunctionDeclSyntax, type: TokenSyntax) -> CodeBlockSyntax {
+		let prefix = makeTypePrefix(funcDecl: funcDecl)
+		let invocationType = TokenSyntax.identifier(prefix + "MethodInvocation")
+		let argumentsExpression = packParametersToTupleExpr(funcDecl.signature.parameterClause.parameters)
+		let functionCallExpr = FunctionCallExprSyntax(
+			calledExpression: MemberAccessExprSyntax(
+				base: DeclReferenceExprSyntax(baseName: invocationType),
+				declName: DeclReferenceExprSyntax(baseName: .identifier("find"))
+			),
+			leftParen: .leftParenToken(),
+			rightParen: .rightParenToken()
+		) {
+			LabeledExprSyntax(
+				label: "in",
+				expression: DeclReferenceExprSyntax(baseName: makeInvocationContainerName(from: funcDecl))
+			)
+			LabeledExprSyntax(
+				label: "with",
+				expression: DeclReferenceExprSyntax(baseName: .identifier("arguments"))
+			)
+			LabeledExprSyntax(
+				label: "type",
+				expression: StringLiteralExprSyntax(content: type.text)
+			)
+		}
+		return CodeBlockSyntax {
+			"let arguments = \(argumentsExpression)"
+			makeStoreCallToStorageExpr(funcDecl: funcDecl)
+			if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
+				if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
+					ReturnStmtSyntax(
+						expression: TryExprSyntax(
+							expression: AwaitExprSyntax(
+								expression: functionCallExpr
+							)
+						)
+					)
+				} else {
+					ReturnStmtSyntax(
+						expression: TryExprSyntax(
+							expression: functionCallExpr
+						)
+					)
+				}
+			} else if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
+				ReturnStmtSyntax(
+					expression: AwaitExprSyntax(expression: functionCallExpr)
+				)
+			} else {
+				ReturnStmtSyntax(
+					expression: functionCallExpr
+				)
+			}
+		}
+	}
+	
+	private static func makeTypePrefix(funcDecl: FunctionDeclSyntax) -> String {
+		var ownTypePrefix = ""
+		if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
+			ownTypePrefix += "Async"
+		}
+		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
+			ownTypePrefix += "Throws"
+		}
+		return ownTypePrefix
+	}
+	
+	static func makeSyncTypePrefix(funcDecl: FunctionDeclSyntax) -> String {
+		var ownTypePrefix = ""
+		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
+			ownTypePrefix += "Throws"
+		}
+		return ownTypePrefix
+	}
+	
+	private static func makeGenericType(_ name: TokenSyntax, from funcDecl: FunctionDeclSyntax) -> some TypeSyntaxProtocol {
+		return IdentifierTypeSyntax(
+			name: name,
+			genericArgumentClause: makeGenericArgumentClause(from: funcDecl)
+		)
+	}
+	
 	private static func wrapToArgumentMatcher(_ parameter: FunctionParameterSyntax) -> FunctionParameterSyntax {
 		parameter
 			.with(\.type, TypeSyntax(
@@ -202,7 +243,7 @@ public struct MockMacro: PeerMacro {
 			))
 	}
 	
-	private static func wrapToArgumentMatcher(_ parameterClause: FunctionParameterClauseSyntax) -> FunctionParameterClauseSyntax {
+	static func wrapToArgumentMatcher(_ parameterClause: FunctionParameterClauseSyntax) -> FunctionParameterClauseSyntax {
 		parameterClause.with(\.parameters, FunctionParameterListSyntax {
 			for parameter in parameterClause.parameters {
 				wrapToArgumentMatcher(parameter)
@@ -222,7 +263,7 @@ public struct MockMacro: PeerMacro {
 		}
 	}
 	
-	private static func packParametersToTupleType<T: BidirectionalCollection>(
+	static func packParametersToTupleType<T: BidirectionalCollection>(
 		_ parameterList: T
 	) -> TupleTypeSyntax where T.Element == FunctionParameterSyntax  {
 		if parameterList.count <= 1 {
@@ -267,7 +308,7 @@ public struct MockMacro: PeerMacro {
 		}
 	}
 	
-	private static func makeInvocationContainerName(from funcDecl: FunctionDeclSyntax) -> TokenSyntax {
+	static func makeInvocationContainerName(from funcDecl: FunctionDeclSyntax) -> TokenSyntax {
 		var name = ""
 		name += funcDecl.name.text
 		name += "_"
@@ -285,49 +326,6 @@ public struct MockMacro: PeerMacro {
 			name += token.text
 		}
 		return TokenSyntax.identifier(name)
-	}
-	
-	private static func makeMockMethodBody(from funcDecl: FunctionDeclSyntax, type: TokenSyntax) -> CodeBlockSyntax {
-		let prefix = makeTypePrefix(funcDecl: funcDecl)
-		let invocationType = TokenSyntax.identifier(prefix + "MethodInvocation")
-		let functionCallExpr = FunctionCallExprSyntax(
-			calledExpression: MemberAccessExprSyntax(
-				base: DeclReferenceExprSyntax(baseName: invocationType),
-				declName: DeclReferenceExprSyntax(baseName: .identifier("find"))
-			),
-			leftParen: .leftParenToken(),
-			rightParen: .rightParenToken()
-		) {
-			LabeledExprSyntax(
-				label: "in",
-				expression: DeclReferenceExprSyntax(baseName: makeInvocationContainerName(from: funcDecl))
-			)
-			LabeledExprSyntax(
-				label: "with",
-				expression: packParametersToTupleExpr(funcDecl.signature.parameterClause.parameters)
-			)
-			LabeledExprSyntax(
-				label: "type",
-				expression: StringLiteralExprSyntax(content: type.text)
-			)
-		}
-		return CodeBlockSyntax {
-			if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
-				if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
-					TryExprSyntax(
-						expression: AwaitExprSyntax(
-							expression: functionCallExpr
-						)
-					)
-				} else {
-					TryExprSyntax(expression: functionCallExpr)
-				}
-			} else if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
-				AwaitExprSyntax(expression: functionCallExpr)
-			} else {
-				functionCallExpr
-			}
-		}
 	}
 }
 

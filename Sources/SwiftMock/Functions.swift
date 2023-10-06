@@ -175,3 +175,7 @@ public func when<Arguments, Result>(
 		register: method.register
 	)
 }
+
+public func verify<Mock: Verifiable>(_ mock: Mock, times: @escaping TimesMatcher = times(1)) -> Mock.Verify {
+	Mock.Verify(mock: mock, times: times)
+}

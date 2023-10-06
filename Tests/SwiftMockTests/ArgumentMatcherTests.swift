@@ -55,7 +55,7 @@ final class ArgumentMatcherTests: XCTestCase {
 		let expectationOne = 8
 		let expectationTwo = 11
 		
-		when(mock.$call(argument1: nil()))
+		when(mock.$call(argument1: isNil()))
 			.thenReturn(expectationTwo)
 		
 		when(mock.$call(argument1: eq(0)))
