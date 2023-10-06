@@ -66,8 +66,10 @@ final class PropertyStubbingTests: XCTestCase {
 		
 		XCTAssertEqual(expected, actual)
 		
+		#if !os(Linux)
 		XCTExpectFailure {
 			mock.property = 7
 		}
+		#endif
 	}
 }

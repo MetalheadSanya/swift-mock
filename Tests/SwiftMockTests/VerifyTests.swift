@@ -66,9 +66,11 @@ final class VerifyTests: XCTestCase {
 		
 		_ = mock.call(argument0: 6, argument1: 9)
 		
+		#if !os(Linux)
 		XCTExpectFailure {
 			verify(mock, times: times(2)).call(argument0: moreThen(2), argument1: moreThen(2))
 		}
+		#endif
 	}
 	
 	func testAtLeast() {
@@ -93,9 +95,11 @@ final class VerifyTests: XCTestCase {
 		
 		when(mock.$call()).thenReturn(9)
 		
+		#if !os(Linux)
 		XCTExpectFailure {
 			verify(mock, times: atLeastOnce()).call()
 		}
+		#endif
 		
 		_ = mock.call(argument0: 9, argument1: 5)
 		
@@ -115,9 +119,11 @@ final class VerifyTests: XCTestCase {
 		
 		_ = mock.call(argument0: 8, argument1: 4)
 		
+		#if !os(Linux)
 		XCTExpectFailure {
 			verify(mock, times: never()).call()
 		}
+		#endif
 	}
 	
 	func testAtMost() {
@@ -131,8 +137,10 @@ final class VerifyTests: XCTestCase {
 			_ = mock.call(argument0: 4, argument1: 7)
 		}
 		
+		#if !os(Linux)
 		XCTExpectFailure {
 			verify(mock, times: atMost(2)).call()
 		}
+		#endif
 	}
 }
