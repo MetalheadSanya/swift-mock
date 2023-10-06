@@ -42,6 +42,9 @@ The ``verify(_:times:)`` function is used to verify the call of your mocks. This
 - ``lessThan(_:)``
 - ``moreThen(_:)``
 - ``zip(_:_:)``
+- ``&&(_:_:)-4du0s``
+- ``||(_:_:)-6azss``
+- ``zip(_:_:)``
 
 ### Times Matchers
 
@@ -50,8 +53,8 @@ The ``verify(_:times:)`` function is used to verify the call of your mocks. This
 - ``atLeast(_:)``
 - ``atLeastOnce()``
 - ``atMost(_:)``
-- ``&&(_:_:)``
-- ``||(_:_:)``
+- ``&&(_:_:)-7m7ci``
+- ``||(_:_:)-6kcwv``
 
 ### Internal Types for stubbing methods
 
