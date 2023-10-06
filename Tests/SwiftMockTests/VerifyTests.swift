@@ -7,13 +7,10 @@ public protocol VerifyTestsProtocol {
 }
 
 final class VerifyTests: XCTestCase {
-	var testFailMessage: String?
-	
-	
 	override func setUp() {
 		continueAfterFailure = false
 		testFailureReport = { message in
-			self.testFailMessage = message
+			XCTFail(message)
 		}
 	}
 	
@@ -25,8 +22,6 @@ final class VerifyTests: XCTestCase {
 		_ = mock.call(argument0: 6, argument1: 9)
 		
 		verify(mock).call()
-		
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testDefaultCountEqArguments() {
@@ -40,8 +35,6 @@ final class VerifyTests: XCTestCase {
 		_ = mock.call(argument0: argument0, argument1: argument1)
 		
 		verify(mock).call(argument0: eq(argument0), argument1: eq(argument1))
-		
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testTimes2DefaultArguments() {
@@ -53,8 +46,6 @@ final class VerifyTests: XCTestCase {
 		_ = mock.call(argument0: 4, argument1: 8)
 		
 		verify(mock, times: times(2)).call()
-		
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testTimesMoreThenArguments() {
@@ -66,8 +57,6 @@ final class VerifyTests: XCTestCase {
 		_ = mock.call(argument0: 4, argument1: 8)
 		
 		verify(mock, times: times(2)).call(argument0: moreThen(2), argument1: moreThen(2))
-		
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testErrorMessage() {
@@ -77,9 +66,9 @@ final class VerifyTests: XCTestCase {
 		
 		_ = mock.call(argument0: 6, argument1: 9)
 		
-		verify(mock, times: times(2)).call(argument0: moreThen(2), argument1: moreThen(2))
-		
-		XCTAssertEqual("VerifyTestsProtocolMock.call(argument0:argument1:): incorrect calls count: 1", testFailMessage)
+		XCTExpectFailure {
+			verify(mock, times: times(2)).call(argument0: moreThen(2), argument1: moreThen(2))
+		}
 	}
 	
 	func testAtLeast() {
@@ -93,12 +82,10 @@ final class VerifyTests: XCTestCase {
 		}
 		
 		verify(mock, times: atLeast(firstTimeCount)).call()
-		XCTAssertNil(testFailMessage)
 		
 		_ = mock.call(argument0: 6, argument1: 0)
 		
 		verify(mock, times: atLeast(firstTimeCount)).call()
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testAtLeastOnce() {
@@ -106,19 +93,17 @@ final class VerifyTests: XCTestCase {
 		
 		when(mock.$call()).thenReturn(9)
 		
-		verify(mock, times: atLeastOnce()).call()
-		XCTAssertEqual("VerifyTestsProtocolMock.call(argument0:argument1:): incorrect calls count: 0", testFailMessage)
-		testFailMessage = nil
+		XCTExpectFailure {
+			verify(mock, times: atLeastOnce()).call()
+		}
 		
 		_ = mock.call(argument0: 9, argument1: 5)
 		
 		verify(mock, times: atLeastOnce()).call()
-		XCTAssertNil(testFailMessage)
 		
 		_ = mock.call(argument0: 4, argument1: 9)
 		
 		verify(mock, times: atLeastOnce()).call()
-		XCTAssertNil(testFailMessage)
 	}
 	
 	func testNever() {
@@ -127,12 +112,12 @@ final class VerifyTests: XCTestCase {
 		when(mock.$call()).thenReturn(9)
 		
 		verify(mock, times: never()).call()
-		XCTAssertNil(testFailMessage)
 		
 		_ = mock.call(argument0: 8, argument1: 4)
 		
-		verify(mock, times: never()).call()
-		XCTAssertEqual("VerifyTestsProtocolMock.call(argument0:argument1:): incorrect calls count: 1", testFailMessage)
+		XCTExpectFailure {
+			verify(mock, times: never()).call()
+		}
 	}
 	
 	func testAtMost() {
@@ -141,13 +126,13 @@ final class VerifyTests: XCTestCase {
 		when(mock.$call()).thenReturn(9)
 		
 		verify(mock, times: atMost(2)).call()
-		XCTAssertNil(testFailMessage)
 		
 		for _ in 0..<3 {
 			_ = mock.call(argument0: 4, argument1: 7)
 		}
 		
-		verify(mock, times: atMost(2)).call()
-		XCTAssertEqual("VerifyTestsProtocolMock.call(argument0:argument1:): incorrect calls count: 3", testFailMessage)
+		XCTExpectFailure {
+			verify(mock, times: atMost(2)).call()
+		}
 	}
 }

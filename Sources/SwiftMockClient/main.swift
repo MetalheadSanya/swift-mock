@@ -13,7 +13,7 @@ func inspect(_ node: Syntax) {
 
 let needToFigureOut =
   """
-	self.times = times
+	var test: Int { get }
 	"""
 let parsed = SwiftParser.Parser.parse(source: needToFigureOut)
 inspect(Syntax(parsed))

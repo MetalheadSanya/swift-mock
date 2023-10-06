@@ -42,6 +42,10 @@ public struct MockMacro: PeerMacro {
 									DeclModifierSyntax(name: .keyword(.public))
 								})
 								.with(\.body, makeMockMethodBody(from: funcDecl, type: mockTypeToken))
+						} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
+							for decl in makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
+								decl
+							}
 						}
 					}
 				}
@@ -81,12 +85,9 @@ public struct MockMacro: PeerMacro {
 			))
 			.with(\.body, CodeBlockSyntax {
 				let parameters = funcDecl.signature.parameterClause.parameters
-				for (index, parameter) in parameters.enumerated().reversed() {
-					if index == parameters.count - 1 {
-						"let argumentMatcher\(raw: index) = \(raw: parameter.secondName ?? parameter.firstName)"
-					} else {
-						"let argumentMatcher\(raw: index) = zip(\(raw: parameter.secondName ?? parameter.firstName), argumentMatcher\(raw: index + 1))"
-					}
+				let mathers = parameters.map { $0.secondName ?? $0.firstName }
+				for stmt in makeArgumentMatcherZipStmts(tokens: mathers) {
+					stmt
 				}
 				ReturnStmtSyntax(
 					expression: FunctionCallExprSyntax(

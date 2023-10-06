@@ -9,6 +9,9 @@ public protocol ArgumentMatcherTestProtocol {
 final class ArgumentMatcherTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
+		testFailureReport = { message in
+			XCTFail(message)
+		}
 	}
 	
 	func testAny() {
