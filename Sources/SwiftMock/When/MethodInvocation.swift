@@ -38,9 +38,7 @@ public final class MethodInvocation<Arguments, Result> {
 		guard let invocation = container.last(where: { invocation in
 			invocation.match(arguments)
 		}) else {
-			//			#if canImport(XCTest)
-			//			XCTFail("\(type).\(function): could not find invocation for arguments: \(criteria)")
-			//			#endif
+			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)")
 			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
 		}
 		return invocation.eval(arguments)

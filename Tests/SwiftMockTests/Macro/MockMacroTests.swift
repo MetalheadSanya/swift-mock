@@ -93,6 +93,110 @@ final class MockMacroTests: XCTestCase {
 		#endif
 	}
 	
+	func testGetProperty() {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				var prop: Int { get }
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				var prop: Int { get }
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let times: TimesMatcher
+					public init(mock: TestMock, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.times = times
+					}
+				}
+				private var prop___getter: [MethodInvocation<(), Int>] = []
+				public func $propGetter() -> MethodSignature<(), Int> {
+					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
+							self.prop___getter.append($0)
+						})
+				}
+				public var prop: Int {
+					get {
+						let arguments = ()
+						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
+					}
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
+	
+	func testGetSetProperty() {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				var prop: Int { get set }
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				var prop: Int { get set }
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let times: TimesMatcher
+					public init(mock: TestMock, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.times = times
+					}
+				}
+				private var prop___getter: [MethodInvocation<(), Int>] = []
+				public func $propGetter() -> MethodSignature<(), Int> {
+					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
+							self.prop___getter.append($0)
+						})
+				}
+				private var prop___setter: [MethodInvocation<(Int), Void>] = []
+				public func $propSetter(_ value: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int), Void> {
+					let argumentMatcher0 = value
+					return MethodSignature<(Int), Void>(argumentMatcher: argumentMatcher0, register: {
+							self.prop___setter.append($0)
+						})
+				}
+				public var prop: Int {
+					get {
+						let arguments = ()
+						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
+					}
+					set {
+						let arguments = (newValue)
+						return MethodInvocation.find(in: prop___setter, with: arguments, type: "TestMock")
+					}
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+#endif
+	}
+
+	
 	func testFunctionWithoutArguments() {
 	#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

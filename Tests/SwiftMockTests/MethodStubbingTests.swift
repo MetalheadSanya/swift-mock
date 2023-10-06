@@ -38,9 +38,12 @@ public protocol AsyncThrowsProtocol {
 	func call() async throws -> Int
 }
 
-final class SwiftMockTests: XCTestCase {
+final class MethodStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
+		testFailureReport = { message in
+			XCTFail(message)
+		}
 	}
 	
 	func testEmptyProtocol() throws {
