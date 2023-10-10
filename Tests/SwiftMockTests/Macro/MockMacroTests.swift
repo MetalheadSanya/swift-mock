@@ -116,8 +116,12 @@ final class MockMacroTests: XCTestCase {
 						self.mock = mock
 						self.times = times
 					}
+					public func propGetter() {
+						MethodCall.verify(in: mock.prop___getter___call, matcher: any(), times: times, type: "TestMock")
+					}
 				}
 				private var prop___getter: [MethodInvocation<(), Int>] = []
+				private var prop___getter___call: [MethodCall<()>] = []
 				public func $propGetter() -> MethodSignature<(), Int> {
 					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
 							self.prop___getter.append($0)
@@ -126,6 +130,7 @@ final class MockMacroTests: XCTestCase {
 				public var prop: Int {
 					get {
 						let arguments = ()
+						prop___getter___call.append(MethodCall(arguments: arguments))
 						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
 					}
 				}
@@ -162,14 +167,23 @@ final class MockMacroTests: XCTestCase {
 						self.mock = mock
 						self.times = times
 					}
+					public func propGetter() {
+						MethodCall.verify(in: mock.prop___getter___call, matcher: any(), times: times, type: "TestMock")
+					}
+					public func propSetter(_ value: @escaping ArgumentMatcher<Int>) {
+						let argumentMatcher0 = value
+						MethodCall.verify(in: mock.prop___setter___call, matcher: argumentMatcher0, times: times, type: "TestMock")
+					}
 				}
 				private var prop___getter: [MethodInvocation<(), Int>] = []
+				private var prop___getter___call: [MethodCall<()>] = []
 				public func $propGetter() -> MethodSignature<(), Int> {
 					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
 							self.prop___getter.append($0)
 						})
 				}
 				private var prop___setter: [MethodInvocation<(Int), Void>] = []
+				private var prop___setter___call: [MethodCall<(Int)>] = []
 				public func $propSetter(_ value: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int), Void> {
 					let argumentMatcher0 = value
 					return MethodSignature<(Int), Void>(argumentMatcher: argumentMatcher0, register: {
@@ -179,10 +193,12 @@ final class MockMacroTests: XCTestCase {
 				public var prop: Int {
 					get {
 						let arguments = ()
+						prop___getter___call.append(MethodCall(arguments: arguments))
 						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
 					}
 					set {
 						let arguments = (newValue)
+						prop___setter___call.append(MethodCall(arguments: arguments))
 						return MethodInvocation.find(in: prop___setter, with: arguments, type: "TestMock")
 					}
 				}

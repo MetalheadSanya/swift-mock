@@ -5,8 +5,8 @@ extension MockMacro {
 	
 	static func makeVariableMock(from variableDecl: VariableDeclSyntax, mockTypeToken: TokenSyntax) -> [DeclSyntax] {
 		var declarations: [DeclSyntax] = []
-		for binding in variableDecl.bindings {
-			guard let accessorBlock = binding.accessorBlock else {
+		for bindingSyntax in variableDecl.bindings {
+			guard let accessorBlock = bindingSyntax.accessorBlock else {
 				// TODO: assertion
 				continue
 			}
@@ -14,11 +14,12 @@ extension MockMacro {
 				// TODO: assertion
 				continue
 			}
-			for accessor in accessorList {
-				declarations.append(makeInvocationContainerProperty(patternBinding: binding, accessorDecl: accessor))
-				declarations.append(makeSignatureMethod(patternBinding: binding, accessorDecl: accessor))
+			for accessorDecl in accessorList {
+				declarations.append(makeInvocationContainerProperty(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
+				declarations.append(makeCallStorageProperty(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl))
+				declarations.append(makeSignatureMethod(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
 			}
-			declarations.append(makeMockProperty(bindingSyntax: binding, mockTypeToken: mockTypeToken))
+			declarations.append(makeMockProperty(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken))
 		}
 		return declarations
 	}
@@ -83,7 +84,7 @@ extension MockMacro {
 		)
 	}
 	
-	private static func makeGetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
+	static func makeGetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
 		let propertyPattern = bindingSyntax.pattern.as(IdentifierPatternSyntax.self) ?? IdentifierPatternSyntax(identifier: .identifier("unknown"))
 		return .identifier(propertyPattern.identifier.text + "___getter")
 	}
@@ -118,7 +119,7 @@ extension MockMacro {
 		)
 	}
 	
-	private static func makeSetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
+	static func makeSetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
 		let propertyPattern = bindingSyntax.pattern.as(IdentifierPatternSyntax.self) ?? IdentifierPatternSyntax(identifier: .identifier("unknown"))
 		return .identifier(propertyPattern.identifier.text + "___setter")
 	}
@@ -262,6 +263,7 @@ extension MockMacro {
 				accessorSpecifier: .keyword(.get)
 			) {
 				"let arguments = ()"
+				makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)))
 				ReturnStmtSyntax(
 					expression: makeMockGetterReturnExpr(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken)
 				)
@@ -282,6 +284,7 @@ extension MockMacro {
 					accessorSpecifier: .keyword(.set)
 				) {
 					"let arguments = (newValue)"
+					makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.set)))
 					ReturnStmtSyntax(
 						expression: makeMockSetterReturnExpr(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken)
 					)
@@ -365,7 +368,7 @@ extension MockMacro {
 	
 	// MARK: - General functions
 	
-	private static func getBindingType(from bindingSyntax: PatternBindingSyntax) -> TypeSyntax {
+	static func getBindingType(from bindingSyntax: PatternBindingSyntax) -> TypeSyntax {
 		// TODO: error of unknown type
 		bindingSyntax.typeAnnotation?.type.trimmed ?? voidType
 	}
