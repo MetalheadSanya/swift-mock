@@ -34,6 +34,19 @@ extension MockMacro {
 		)
 	}
 	
+	static func makeMethodCallType(
+		arguments: [TypeSyntax]
+	) -> TypeSyntax {
+		TypeSyntax(
+			fromProtocol: IdentifierTypeSyntax(
+				name: .identifier("MethodCall"),
+				genericArgumentClause: GenericArgumentClauseSyntax {
+					GenericArgumentSyntax(argument: makeTupleType(from: arguments))
+				}
+			)
+		)
+	}
+	
 	private static func makeMethodWrapperType(
 		baseName: TokenSyntax,
 		isAsync: Bool,
@@ -114,31 +127,31 @@ extension MockMacro {
 	private static func makeTupleType<T: Collection>(
 		from types: T
 	) -> TypeSyntax where T.Element == TypeSyntax {
-		func packParametersToTupleType<Z: Collection>(
-			_ types: Z
-		) -> TupleTypeElementListSyntax where Z.Element == TypeSyntax {
-			if types.count <= 1 {
-				return TupleTypeElementListSyntax {
-					for type in types {
-						TupleTypeElementSyntax(type: type)
-					}
-				}
-			} else {
-				let rest = types.dropFirst()
-				return  TupleTypeElementListSyntax {
-					TupleTypeElementSyntax(type: types.first!)
-					TupleTypeElementSyntax(
-						type: TupleTypeSyntax(elements: packParametersToTupleType(rest))
-					)
-				}
-			}
-		}
-		
 		return TypeSyntax(
 			fromProtocol: TupleTypeSyntax(
 				elements: packParametersToTupleType(types)
 			)
 		)
+	}
+	
+	private static func packParametersToTupleType<Z: Collection>(
+		_ types: Z
+	) -> TupleTypeElementListSyntax where Z.Element == TypeSyntax {
+		if types.count <= 1 {
+			return TupleTypeElementListSyntax {
+				for type in types {
+					TupleTypeElementSyntax(type: type)
+				}
+			}
+		} else {
+			let rest = types.dropFirst()
+			return  TupleTypeElementListSyntax {
+				TupleTypeElementSyntax(type: types.first!)
+				TupleTypeElementSyntax(
+					type: TupleTypeSyntax(elements: packParametersToTupleType(rest))
+				)
+			}
+		}
 	}
 	
 	// MARK: - Making Labeled Expressions
