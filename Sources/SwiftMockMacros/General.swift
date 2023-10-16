@@ -115,13 +115,19 @@ extension MockMacro {
 		returnType: TypeSyntax?
 	) -> GenericArgumentClauseSyntax where T.Element == TypeSyntax {
 		GenericArgumentClauseSyntax {
-			GenericArgumentSyntax(
-				argument: makeTupleType(from: arguments)
-			)
+			packTypesToGenericArgumentSyntax(types: arguments)
 			GenericArgumentSyntax(
 				argument: returnType ?? voidType
 			)
 		}
+	}
+	
+	static func packTypesToGenericArgumentSyntax<T: Collection>(
+		types: T
+	) -> GenericArgumentSyntax where T.Element == TypeSyntax {
+		GenericArgumentSyntax(
+			argument: makeTupleType(from: types)
+		)
 	}
 	
 	private static func makeTupleType<T: Collection>(
@@ -203,11 +209,15 @@ extension MockMacro {
 	
 	static func makeArgumentMatcherZipStmts(tokens: [TokenSyntax]) -> [DeclSyntax] {
 		var stmts: [DeclSyntax] = []
-		for (index, token) in tokens.enumerated().reversed() {
-			if index == tokens.count - 1 {
-				stmts.append("let argumentMatcher\(raw: index) = \(raw: token.text)")
-			} else {
-				stmts.append("let argumentMatcher\(raw: index) = zip(\(raw: token.text), argumentMatcher\(raw: index + 1))")
+		if tokens.isEmpty {
+			stmts.append("let argumentMatcher0: ArgumentMatcher<()> = any()")
+		} else {
+			for (index, token) in tokens.enumerated().reversed() {
+				if index == tokens.count - 1 {
+					stmts.append("let argumentMatcher\(raw: index) = \(raw: token.text)")
+				} else {
+					stmts.append("let argumentMatcher\(raw: index) = zip(\(raw: token.text), argumentMatcher\(raw: index + 1))")
+				}
 			}
 		}
 		return stmts

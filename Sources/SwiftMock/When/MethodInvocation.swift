@@ -33,7 +33,7 @@ public final class MethodInvocation<Arguments, Result> {
 		in container: [MethodInvocation<Arguments, Result>],
 		with arguments: Arguments,
 		type: String,
-		function: String = #function
+		function: String
 	) -> Result {
 		guard let invocation = container.last(where: { invocation in
 			invocation.match(arguments)

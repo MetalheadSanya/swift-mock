@@ -31,6 +31,8 @@ func test() {
 
 By default, verify checks that the method was called exactly one time. If the method was called more than once, you will receive an error.
 
+> Important: The framework only checks calls that have not yet been checked. If you repeat the method check a second time, you will receive an error that the call was not found.
+
 ### Checking that property was read
 
 To verify that the mock property has been read, use the ``verify(_:times:)`` method and pass the mock object as the first argument. This method will create a `Verify` structure for you that has a method to verify that your property has been read. The name of the method is `propertyGetter()`, where `property` is the name of your property. All rules regarding method call verification work similarly for properties.
@@ -134,3 +136,5 @@ func test() {
 	verify(mock, times: atLeast(2)).getAlbumName() 
 }
 ```
+
+> Important: Using ``atLeast(_:)`` and ``atMost(_:)`` will mark all calls that match the passed ``ArgumentMatcher``s as verified.

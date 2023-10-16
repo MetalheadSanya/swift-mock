@@ -3,7 +3,7 @@ import SwiftSyntaxBuilder
 
 extension MockMacro {
 	
-	static func makeVariableMock(from variableDecl: VariableDeclSyntax, mockTypeToken: TokenSyntax) -> [DeclSyntax] {
+	static func makeVariableMock(from variableDecl: VariableDeclSyntax, mockTypeToken: TokenSyntax) throws -> [DeclSyntax] {
 		var declarations: [DeclSyntax] = []
 		for bindingSyntax in variableDecl.bindings {
 			guard let accessorBlock = bindingSyntax.accessorBlock else {
@@ -16,10 +16,9 @@ extension MockMacro {
 			}
 			for accessorDecl in accessorList {
 				declarations.append(makeInvocationContainerProperty(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
-				declarations.append(makeCallStorageProperty(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl))
 				declarations.append(makeSignatureMethod(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
 			}
-			declarations.append(makeMockProperty(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken))
+			declarations.append(try makeMockProperty(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken))
 		}
 		return declarations
 	}
@@ -257,15 +256,19 @@ extension MockMacro {
 	
 	// MARK: - Making the Mock Property
 	
-	static func makeMockProperty(bindingSyntax: PatternBindingSyntax, mockTypeToken: TokenSyntax) -> DeclSyntax {
-		var accessorDeclListSyntax = AccessorDeclListSyntax {
-			AccessorDeclSyntax(
+	static func makeMockProperty(bindingSyntax: PatternBindingSyntax, mockTypeToken: TokenSyntax) throws -> DeclSyntax {
+		var accessorDeclListSyntax = try AccessorDeclListSyntax {
+			try AccessorDeclSyntax(
 				accessorSpecifier: .keyword(.get)
 			) {
 				"let arguments = ()"
-				makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)))
+				try makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)))
 				ReturnStmtSyntax(
-					expression: makeMockGetterReturnExpr(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken)
+					expression: try makeMockGetterReturnExpr(
+						bindingSyntax: bindingSyntax,
+						accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)),
+						mockTypeToken: mockTypeToken
+					)
 				)
 			}
 		}
@@ -280,13 +283,17 @@ extension MockMacro {
 		}
 		if hasSetter {
 			accessorDeclListSyntax.append(
-				AccessorDeclSyntax(
+				try AccessorDeclSyntax(
 					accessorSpecifier: .keyword(.set)
 				) {
 					"let arguments = (newValue)"
-					makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.set)))
+					try makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.set)))
 					ReturnStmtSyntax(
-						expression: makeMockSetterReturnExpr(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken)
+						expression: try makeMockSetterReturnExpr(
+							bindingSyntax: bindingSyntax,
+							accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.set)),
+							mockTypeToken: mockTypeToken
+						)
 					)
 				}
 			)
@@ -312,8 +319,13 @@ extension MockMacro {
 		)
 	}
 	
-	private static func makeMockGetterReturnExpr(bindingSyntax: PatternBindingSyntax, mockTypeToken: TokenSyntax) -> ExprSyntax {
+	private static func makeMockGetterReturnExpr(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax,
+		mockTypeToken: TokenSyntax
+	) throws -> ExprSyntax {
 		let invocationType = TokenSyntax.identifier("MethodInvocation")
+		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		return ExprSyntax(
 			fromProtocol: FunctionCallExprSyntax(
 				calledExpression: MemberAccessExprSyntax(
@@ -335,12 +347,21 @@ extension MockMacro {
 					label: "type",
 					expression: StringLiteralExprSyntax(content: mockTypeToken.text)
 				)
+				LabeledExprSyntax(
+					label: "function",
+					expression: ExprSyntax(literal: propertySignatureString)
+				)
 			}
 		)
 	}
 	
-	private static func makeMockSetterReturnExpr(bindingSyntax: PatternBindingSyntax, mockTypeToken: TokenSyntax) -> ExprSyntax {
+	private static func makeMockSetterReturnExpr(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax,
+		mockTypeToken: TokenSyntax
+	) throws -> ExprSyntax {
 		let invocationType = TokenSyntax.identifier("MethodInvocation")
+		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		return ExprSyntax(
 			fromProtocol: FunctionCallExprSyntax(
 				calledExpression: MemberAccessExprSyntax(
@@ -361,6 +382,10 @@ extension MockMacro {
 				LabeledExprSyntax(
 					label: "type",
 					expression: StringLiteralExprSyntax(content: mockTypeToken.text)
+				)
+				LabeledExprSyntax(
+					label: "function",
+					expression: ExprSyntax(literal: propertySignatureString)
 				)
 			}
 		)

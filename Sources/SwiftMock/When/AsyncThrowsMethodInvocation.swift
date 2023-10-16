@@ -33,7 +33,7 @@ public final class AsyncThrowsMethodInvocation<Arguments, Result> {
 		in container: [AsyncThrowsMethodInvocation<Arguments, Result>],
 		with arguments: Arguments,
 		type: String,
-		function: String = #function
+		function: String
 	) async throws -> Result {
 		guard let invocation = container.last(where: { invocation in
 			invocation.match(arguments)
