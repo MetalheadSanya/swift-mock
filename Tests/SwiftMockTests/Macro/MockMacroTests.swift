@@ -25,12 +25,15 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 				}
+				public let container = VerifyContainer()
 			}
 			""",
 			macros: testMacros,
@@ -59,29 +62,33 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call() -> Void {
-						MethodCall.verify(in: mock.call_____call, matcher: any(), times: times, type: "TestMock")
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call()")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call__: [MethodInvocation<(), Void>] = []
-				private var call_____call: [MethodCall<()>] = []
 				public
 					func $call() -> MethodSignature<(), Void> {
-					return MethodSignature<(), Void>(argumentMatcher: any(), register: {
+					let argumentMatcher0: ArgumentMatcher<()> = any()
+					return MethodSignature<(), Void>(argumentMatcher: argumentMatcher0, register: {
 							self.call__.append($0)
 						})
 				}
 				public
 					func call() {
 					let arguments = ()
-					call_____call.append(MethodCall(arguments: arguments))
-					return MethodInvocation.find(in: call__, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call()")
+					return MethodInvocation.find(in: call__, with: arguments, type: "TestMock", function: "call()")
 				}
 			}
 			""",
@@ -111,17 +118,20 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public func propGetter() {
-						MethodCall.verify(in: mock.prop___getter___call, matcher: any(), times: times, type: "TestMock")
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop")
 					}
 				}
+				public let container = VerifyContainer()
 				private var prop___getter: [MethodInvocation<(), Int>] = []
-				private var prop___getter___call: [MethodCall<()>] = []
 				public func $propGetter() -> MethodSignature<(), Int> {
 					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
 							self.prop___getter.append($0)
@@ -130,8 +140,8 @@ final class MockMacroTests: XCTestCase {
 				public var prop: Int {
 					get {
 						let arguments = ()
-						prop___getter___call.append(MethodCall(arguments: arguments))
-						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop")
+						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock", function: "prop")
 					}
 				}
 			}
@@ -162,28 +172,30 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public func propGetter() {
-						MethodCall.verify(in: mock.prop___getter___call, matcher: any(), times: times, type: "TestMock")
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop")
 					}
 					public func propSetter(_ value: @escaping ArgumentMatcher<Int>) {
 						let argumentMatcher0 = value
-						MethodCall.verify(in: mock.prop___setter___call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop=")
 					}
 				}
+				public let container = VerifyContainer()
 				private var prop___getter: [MethodInvocation<(), Int>] = []
-				private var prop___getter___call: [MethodCall<()>] = []
 				public func $propGetter() -> MethodSignature<(), Int> {
 					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
 							self.prop___getter.append($0)
 						})
 				}
 				private var prop___setter: [MethodInvocation<(Int), Void>] = []
-				private var prop___setter___call: [MethodCall<(Int)>] = []
 				public func $propSetter(_ value: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int), Void> {
 					let argumentMatcher0 = value
 					return MethodSignature<(Int), Void>(argumentMatcher: argumentMatcher0, register: {
@@ -193,13 +205,13 @@ final class MockMacroTests: XCTestCase {
 				public var prop: Int {
 					get {
 						let arguments = ()
-						prop___getter___call.append(MethodCall(arguments: arguments))
-						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock")
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop")
+						return MethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock", function: "prop")
 					}
 					set {
 						let arguments = (newValue)
-						prop___setter___call.append(MethodCall(arguments: arguments))
-						return MethodInvocation.find(in: prop___setter, with: arguments, type: "TestMock")
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop=")
+						return MethodInvocation.find(in: prop___setter, with: arguments, type: "TestMock", function: "prop=")
 					}
 				}
 			}
@@ -231,29 +243,33 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call() -> Void {
-						MethodCall.verify(in: mock.call_____call, matcher: any(), times: times, type: "TestMock")
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call() -> Int")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call__: [MethodInvocation<(), Int>] = []
-				private var call_____call: [MethodCall<()>] = []
 				public
 					func $call() -> MethodSignature<(), Int> {
-					return MethodSignature<(), Int>(argumentMatcher: any(), register: {
+					let argumentMatcher0: ArgumentMatcher<()> = any()
+					return MethodSignature<(), Int>(argumentMatcher: argumentMatcher0, register: {
 							self.call__.append($0)
 						})
 				}
 				public
 					func call() -> Int {
 					let arguments = ()
-					call_____call.append(MethodCall(arguments: arguments))
-					return MethodInvocation.find(in: call__, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call() -> Int")
+					return MethodInvocation.find(in: call__, with: arguments, type: "TestMock", function: "call() -> Int")
 				}
 			}
 			""",
@@ -283,19 +299,21 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call(argument: @escaping ArgumentMatcher<Int> = any()) -> Void {
 						let argumentMatcher0 = argument
-						MethodCall.verify(in: mock.call_argument____call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument:)")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call_argument_: [MethodInvocation<(Int), Void>] = []
-				private var call_argument____call: [MethodCall<(Int)>] = []
 				public
 					func $call(argument: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int), Void> {
 					let argumentMatcher0 = argument
@@ -306,8 +324,8 @@ final class MockMacroTests: XCTestCase {
 				public
 					func call(argument: Int) {
 					let arguments = (argument)
-					call_argument____call.append(MethodCall(arguments: arguments))
-					return MethodInvocation.find(in: call_argument_, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument:)")
+					return MethodInvocation.find(in: call_argument_, with: arguments, type: "TestMock", function: "call(argument:)")
 				}
 			}
 			""",
@@ -337,20 +355,22 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						MethodCall.verify(in: mock.call_argument0_argument1____call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:)")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call_argument0_argument1_: [MethodInvocation<(Int, (Int)), Void>] = []
-				private var call_argument0_argument1____call: [MethodCall<(Int, (Int))>] = []
 				public
 					func $call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int, (Int)), Void> {
 					let argumentMatcher1 = argument1
@@ -362,8 +382,8 @@ final class MockMacroTests: XCTestCase {
 				public
 					func call(argument0: Int, argument1: Int) {
 					let arguments = (argument0, (argument1))
-					call_argument0_argument1____call.append(MethodCall(arguments: arguments))
-					return MethodInvocation.find(in: call_argument0_argument1_, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:)")
+					return MethodInvocation.find(in: call_argument0_argument1_, with: arguments, type: "TestMock", function: "call(argument0:argument1:)")
 				}
 			}
 			""",
@@ -393,20 +413,22 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						MethodCall.verify(in: mock.call_argument0_argument1_throws___call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) throws -> Int")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call_argument0_argument1_throws: [ThrowsMethodInvocation<(Int, (Int)), Int>] = []
-				private var call_argument0_argument1_throws___call: [MethodCall<(Int, (Int))>] = []
 				public
 					func $call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> ThrowsMethodSignature<(Int, (Int)), Int> {
 					let argumentMatcher1 = argument1
@@ -418,8 +440,8 @@ final class MockMacroTests: XCTestCase {
 				public
 					func call(argument0: Int, argument1: Int) throws -> Int {
 					let arguments = (argument0, (argument1))
-					call_argument0_argument1_throws___call.append(MethodCall(arguments: arguments))
-					return try ThrowsMethodInvocation.find(in: call_argument0_argument1_throws, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) throws -> Int")
+					return try ThrowsMethodInvocation.find(in: call_argument0_argument1_throws, with: arguments, type: "TestMock", function: "call(argument0:argument1:) throws -> Int")
 				}
 			}
 			""",
@@ -449,20 +471,22 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						MethodCall.verify(in: mock.call_argument0_argument1_async___call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async -> Int")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call_argument0_argument1_async: [AsyncMethodInvocation<(Int, (Int)), Int>] = []
-				private var call_argument0_argument1_async___call: [MethodCall<(Int, (Int))>] = []
 				public
 					func $call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> AsyncMethodSignature<(Int, (Int)), Int> {
 					let argumentMatcher1 = argument1
@@ -474,8 +498,8 @@ final class MockMacroTests: XCTestCase {
 				public
 					func call(argument0: Int, argument1: Int) async -> Int {
 					let arguments = (argument0, (argument1))
-					call_argument0_argument1_async___call.append(MethodCall(arguments: arguments))
-					return await AsyncMethodInvocation.find(in: call_argument0_argument1_async, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) async -> Int")
+					return await AsyncMethodInvocation.find(in: call_argument0_argument1_async, with: arguments, type: "TestMock", function: "call(argument0:argument1:) async -> Int")
 				}
 			}
 			""",
@@ -505,20 +529,22 @@ final class MockMacroTests: XCTestCase {
 			public final class TestMock: Test , Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
+					let container: CallContainer
 					let times: TimesMatcher
-					public init(mock: TestMock, times: @escaping TimesMatcher) {
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
 						self.mock = mock
+						self.container = container
 						self.times = times
 					}
 					public
 						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						MethodCall.verify(in: mock.call_argument0_argument1_asyncthrows___call, matcher: argumentMatcher0, times: times, type: "TestMock")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int")
 					}
 				}
+				public let container = VerifyContainer()
 				private var call_argument0_argument1_asyncthrows: [AsyncThrowsMethodInvocation<(Int, (Int)), Int>] = []
-				private var call_argument0_argument1_asyncthrows___call: [MethodCall<(Int, (Int))>] = []
 				public
 					func $call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> AsyncThrowsMethodSignature<(Int, (Int)), Int> {
 					let argumentMatcher1 = argument1
@@ -530,8 +556,8 @@ final class MockMacroTests: XCTestCase {
 				public
 					func call(argument0: Int, argument1: Int) async throws -> Int {
 					let arguments = (argument0, (argument1))
-					call_argument0_argument1_asyncthrows___call.append(MethodCall(arguments: arguments))
-					return try await AsyncThrowsMethodInvocation.find(in: call_argument0_argument1_asyncthrows, with: arguments, type: "TestMock")
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) async throws -> Int")
+					return try await AsyncThrowsMethodInvocation.find(in: call_argument0_argument1_asyncthrows, with: arguments, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int")
 				}
 			}
 			""",

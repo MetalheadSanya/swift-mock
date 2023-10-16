@@ -87,7 +87,7 @@ final class VerifyTests: XCTestCase {
 		
 		_ = mock.call(argument0: 6, argument1: 0)
 		
-		verify(mock, times: atLeast(firstTimeCount)).call()
+		verify(mock).call()
 	}
 	
 	func testAtLeastOnce() {
@@ -102,12 +102,13 @@ final class VerifyTests: XCTestCase {
 		#endif
 		
 		_ = mock.call(argument0: 9, argument1: 5)
+		_ = mock.call(argument0: 4, argument1: 5)
 		
 		verify(mock, times: atLeastOnce()).call()
 		
 		_ = mock.call(argument0: 4, argument1: 9)
 		
-		verify(mock, times: atLeastOnce()).call()
+		verify(mock).call()
 	}
 	
 	func testNever() {

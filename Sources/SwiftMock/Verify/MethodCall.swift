@@ -10,7 +10,7 @@ public struct MethodCall<Arguments> {
 		matcher match: ArgumentMatcher<Arguments>,
 		times: TimesMatcher,
 		type: String,
-		function: String = #function
+		function: String
 	) {
 		let callCount = container.filter { match($0.arguments) }.count
 		guard times(callCount) else {

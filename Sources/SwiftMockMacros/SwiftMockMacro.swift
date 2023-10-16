@@ -20,7 +20,7 @@ public struct MockMacro: PeerMacro {
 		
 		return [
 			DeclSyntax(
-				ClassDeclSyntax(
+				try ClassDeclSyntax(
 					modifiers: DeclModifierListSyntax {
 						DeclModifierSyntax(name: .keyword(.public))
 						DeclModifierSyntax(name: .keyword(.final))
@@ -31,19 +31,19 @@ public struct MockMacro: PeerMacro {
 						InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
 					}
 				) {
-					makeVerifyType(declaration)
+					try makeVerifyType(declaration)
+					try makeVerifyCallStorageProperty()
 					for member in declaration.memberBlock.members {
 						if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
 							makeInvocationContainerProperty(funcDecl: funcDecl)
-							makeCallStorageProperty(funcDecl: funcDecl)
 							makeSignatureMethod(from: funcDecl)
 							funcDecl
 								.with(\.modifiers, DeclModifierListSyntax {
 									DeclModifierSyntax(name: .keyword(.public))
 								})
-								.with(\.body, makeMockMethodBody(from: funcDecl, type: mockTypeToken))
+								.with(\.body, try makeMockMethodBody(from: funcDecl, type: mockTypeToken))
 						} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
-							for decl in makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
+							for decl in try makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
 								decl
 							}
 						}
@@ -98,23 +98,10 @@ public struct MockMacro: PeerMacro {
 						leftParen: .leftParenToken(),
 						rightParen: .rightParenToken()
 					) {
-						if parameters.isEmpty {
-							LabeledExprSyntax(
-								label: "argumentMatcher",
-								expression: FunctionCallExprSyntax(
-									calledExpression: DeclReferenceExprSyntax(
-										baseName: .identifier("any")
-									),
-									leftParen: .leftParenToken(),
-									rightParen: .rightParenToken()
-								) { }
-							)
-						} else {
-							LabeledExprSyntax(
-								label: "argumentMatcher",
-								expression: DeclReferenceExprSyntax(baseName: .identifier("argumentMatcher0"))
-							)
-						}
+						LabeledExprSyntax(
+							label: "argumentMatcher",
+							expression: ExprSyntax(stringLiteral: "argumentMatcher0")
+						)
 						LabeledExprSyntax(
 							label: "register",
 							expression: ClosureExprSyntax {
@@ -138,10 +125,11 @@ public struct MockMacro: PeerMacro {
 			})
 	}
 	
-	private static func makeMockMethodBody(from funcDecl: FunctionDeclSyntax, type: TokenSyntax) -> CodeBlockSyntax {
+	private static func makeMockMethodBody(from funcDecl: FunctionDeclSyntax, type: TokenSyntax) throws -> CodeBlockSyntax {
 		let prefix = makeTypePrefix(funcDecl: funcDecl)
 		let invocationType = TokenSyntax.identifier(prefix + "MethodInvocation")
 		let argumentsExpression = packParametersToTupleExpr(funcDecl.signature.parameterClause.parameters)
+		let funcSignatureString = try makeFunctionSignatureString(funcDecl: funcDecl)
 		let functionCallExpr = FunctionCallExprSyntax(
 			calledExpression: MemberAccessExprSyntax(
 				base: DeclReferenceExprSyntax(baseName: invocationType),
@@ -162,10 +150,14 @@ public struct MockMacro: PeerMacro {
 				label: "type",
 				expression: StringLiteralExprSyntax(content: type.text)
 			)
+			LabeledExprSyntax(
+				label: "function",
+				expression: ExprSyntax(literal: funcSignatureString)
+			)
 		}
-		return CodeBlockSyntax {
+		return try CodeBlockSyntax {
 			"let arguments = \(argumentsExpression)"
-			makeStoreCallToStorageExpr(funcDecl: funcDecl)
+			try makeStoreCallToStorageExpr(funcDecl: funcDecl)
 			if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
 				if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
 					ReturnStmtSyntax(

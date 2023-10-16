@@ -2,8 +2,8 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 
 extension MockMacro {
-	static func makeVerifyType(_ protocolDecl: ProtocolDeclSyntax) -> StructDeclSyntax {
-		StructDeclSyntax(
+	static func makeVerifyType(_ protocolDecl: ProtocolDeclSyntax) throws -> StructDeclSyntax {
+		try StructDeclSyntax(
 			modifiers: DeclModifierListSyntax {
 				DeclModifierSyntax(name: .keyword(.public))
 			},
@@ -13,13 +13,14 @@ extension MockMacro {
 			}
 		) {
 			makeVerifyStorageProperty(protocolDecl: protocolDecl)
+			makeCallContainerProperty()
 			makeTimesStorageProperty()
 			makeInit(protocolDecl: protocolDecl)
 			for member in protocolDecl.memberBlock.members {
 				if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
-					makeVerifyMethod(protocolDecl: protocolDecl, funcDecl: funcDecl)
+					try makeVerifyMethod(protocolDecl: protocolDecl, funcDecl: funcDecl)
 				} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
-					for decl in makeVerifyProperty(protocolDecl: protocolDecl, variableDecl: variableDecl) {
+					for decl in try makeVerifyProperty(protocolDecl: protocolDecl, variableDecl: variableDecl) {
 						decl
 					}
 				}
@@ -51,6 +52,22 @@ extension MockMacro {
 		)
 	}
 	
+	private static func makeCallContainerProperty() -> VariableDeclSyntax {
+		do {
+			return try VariableDeclSyntax("let container: CallContainer")
+		} catch {
+			fatalError()
+		}
+		
+//		VariableDeclSyntax(
+//			.let,
+//			name: "container",
+//			type: TypeAnnotationSyntax(
+//				type: IdentifierTypeSyntax(name: .identifier("CallContainer"))
+//			)
+//		)
+	}
+	
 	private static func makeInit(protocolDecl: ProtocolDeclSyntax) -> InitializerDeclSyntax {
 		InitializerDeclSyntax(
 			modifiers: DeclModifierListSyntax {
@@ -59,11 +76,13 @@ extension MockMacro {
 			signature: FunctionSignatureSyntax(
 				parameterClause: FunctionParameterClauseSyntax {
 					"mock: \(raw: protocolDecl.name.text)Mock"
+					"container: CallContainer"
 					"times: @escaping TimesMatcher"
 				}
 			),
 			bodyBuilder: {
 				"self.mock = mock"
+				"self.container = container"
 				"self.times = times"
 			}
 		)
@@ -71,8 +90,9 @@ extension MockMacro {
 	
 	// MARK: - Vertify Method for Method
 	
-	private static func makeVerifyMethod(protocolDecl: ProtocolDeclSyntax, funcDecl: FunctionDeclSyntax) -> FunctionDeclSyntax {
-		funcDecl
+	private static func makeVerifyMethod(protocolDecl: ProtocolDeclSyntax, funcDecl: FunctionDeclSyntax) throws -> FunctionDeclSyntax {
+		let funcSignatureString = try makeFunctionSignatureString(funcDecl: funcDecl)
+		return funcDecl
 			.with(\.modifiers, DeclModifierListSyntax {
 				publicModifier
 			})
@@ -82,8 +102,8 @@ extension MockMacro {
 			))
 			.with(\.body, makeVerifyBody(
 				arguments: funcDecl.signature.parameterClause.parameters.map { $0.secondName ?? $0.firstName },
-				storagePropertyToken: makeCallStorageProperyName(funcDecl: funcDecl),
-				mockTypeToken: makeMockTypeToken(protocolDecl)
+				mockTypeToken: makeMockTypeToken(protocolDecl),
+				funcSignatureExpr: ExprSyntax(literal: funcSignatureString)
 			))
 	}
 	
@@ -93,7 +113,7 @@ extension MockMacro {
 	
 	// MARK: - Verify Method For Property
 	
-	private static func makeVerifyProperty(protocolDecl: ProtocolDeclSyntax, variableDecl: VariableDeclSyntax) -> [DeclSyntax] {
+	private static func makeVerifyProperty(protocolDecl: ProtocolDeclSyntax, variableDecl: VariableDeclSyntax) throws -> [DeclSyntax] {
 		var declarations: [DeclSyntax] = []
 		for bindingSyntax in variableDecl.bindings {
 			guard let accessorBlock = bindingSyntax.accessorBlock else {
@@ -105,6 +125,7 @@ extension MockMacro {
 				continue
 			}
 			for accessorDecl in accessorList {
+				let funcSignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 				let decl = DeclSyntax(
 					fromProtocol: FunctionDeclSyntax(
 						modifiers: DeclModifierListSyntax {
@@ -114,8 +135,8 @@ extension MockMacro {
 						signature: makeVerifyPropertyFunctionSignature(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl),
 						body: makeVerifyBody(
 							arguments: makeArgumentList(accessorDecl: accessorDecl),
-							storagePropertyToken: makeCallStoragePropertyToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl),
-							mockTypeToken: makeMockTypeToken(protocolDecl)
+							mockTypeToken: makeMockTypeToken(protocolDecl),
+							funcSignatureExpr: ExprSyntax(literal: funcSignatureString)
 						)
 					)
 				)
@@ -172,23 +193,6 @@ extension MockMacro {
 		return FunctionSignatureSyntax(parameterClause: functionParameterClause)
 	}
 	
-	
-	private static func makeCallStoragePropertyToken(
-		bindingSyntax: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
-	) -> TokenSyntax {
-		let text: String
-		switch accessorDecl.accessorSpecifier.trimmed.text {
-		case TokenSyntax.keyword(.get).text:
-			text = makeGetterInvocationContainerToken(from: bindingSyntax).text
-		case TokenSyntax.keyword(.set).text:
-			text = makeSetterInvocationContainerToken(from: bindingSyntax).text
-		default:
-			fatalError("Unexpected accessor for property. Supported accessors: \"get\" and \"set\"")
-		}
-		return .identifier(text + "___call")
-	}
-	
 	private static func makeArgumentList(accessorDecl: AccessorDeclSyntax) -> [TokenSyntax] {
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
@@ -204,45 +208,47 @@ extension MockMacro {
 	
 	private static func makeVerifyBody(
 		arguments: [TokenSyntax] = [],
-		storagePropertyToken: TokenSyntax,
-		mockTypeToken: TokenSyntax
+		mockTypeToken: TokenSyntax,
+		funcSignatureExpr: ExprSyntax
 	) -> CodeBlockSyntax {
-		CodeBlockSyntax {
+		return CodeBlockSyntax {
 			for stmt in makeArgumentMatcherZipStmts(tokens: arguments) {
 				stmt
 			}
 			FunctionCallExprSyntax(
-				calledExpression: MemberAccessExprSyntax(
-					base: DeclReferenceExprSyntax(baseName: .identifier("MethodCall")),
-					declName: DeclReferenceExprSyntax(baseName: .identifier("verify"))
-				),
+				calledExpression: ExprSyntax(stringLiteral: "container.verify"),
 				leftParen: .leftParenToken(),
 				rightParen: .rightParenToken()
 			) {
 				LabeledExprSyntax(
-					label: "in",
-					expression: MemberAccessExprSyntax(
-						base: DeclReferenceExprSyntax(baseName: .identifier("mock")),
-						declName: DeclReferenceExprSyntax(baseName: storagePropertyToken)
-					)
+					label: "mock",
+					expression: ExprSyntax(stringLiteral: "mock")
 				)
 				LabeledExprSyntax(
 					label: "matcher",
-					expression: DeclReferenceExprSyntax(baseName: arguments.isEmpty ? .identifier("any()") : .identifier("argumentMatcher0"))
+					expression: ExprSyntax(stringLiteral: "argumentMatcher0")
 				)
 				LabeledExprSyntax(
 					label: "times",
-					expression: DeclReferenceExprSyntax(baseName: .identifier("times"))
+					expression: ExprSyntax(stringLiteral: "times")
 				)
 				LabeledExprSyntax(
 					label: "type",
 					expression: StringLiteralExprSyntax(content: mockTypeToken.text)
+				)
+				LabeledExprSyntax(
+					label: "function",
+					expression: funcSignatureExpr
 				)
 			}
 		}
 	}
 	
 	// MARK: - Integration to other files
+	
+	static func makeVerifyCallStorageProperty() throws -> VariableDeclSyntax {
+		try VariableDeclSyntax("public let container = VerifyContainer()")
+	}
 	
 	static func makeCallStorageProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {
 		let storageName = makeCallStorageProperyName(funcDecl: funcDecl)
@@ -263,31 +269,9 @@ extension MockMacro {
 		)
 	}
 	
-	static func makeStoreCallToStorageExpr(funcDecl: FunctionDeclSyntax) -> ExprSyntax {
-		"\(makeCallStorageProperyName(funcDecl: funcDecl)).append(MethodCall(arguments: arguments))"
-	}
-	
-	static func makeCallStorageProperty(
-		bindingSyntax: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
-	) -> DeclSyntax {
-		let storageName = makeCallStoragePropertyToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
-		
-		return DeclSyntax(
-			fromProtocol: VariableDeclSyntax(
-				modifiers: DeclModifierListSyntax {
-					DeclModifierSyntax(name: .keyword(.private))
-				},
-				bindingSpecifier: .keyword(.var),
-				bindings: PatternBindingListSyntax {
-					PatternBindingSyntax(
-						pattern: IdentifierPatternSyntax(identifier: storageName),
-						typeAnnotation: TypeAnnotationSyntax(type: makeStorageType(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)),
-						initializer: InitializerClauseSyntax(value: ArrayExprSyntax(expressions: []))
-					)
-				}
-			)
-		)
+	static func makeStoreCallToStorageExpr(funcDecl: FunctionDeclSyntax) throws -> ExprSyntax {
+		let functionSignature = try makeFunctionSignatureString(funcDecl: funcDecl)
+		return "container.append(mock: self, call: MethodCall(arguments: arguments), function: \"\(raw: functionSignature)\")"
 	}
 	
 	private static func makeStorageType(
@@ -316,9 +300,9 @@ extension MockMacro {
 		return TypeSyntax(fromProtocol: ArrayTypeSyntax(element: elementType))
 	}
 	
-	static func makeStoreCallToStorageExpr(bindingSyntax: PatternBindingSyntax, accessorDecl: AccessorDeclSyntax) -> ExprSyntax {
-		let storageToken = makeCallStoragePropertyToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
-		return "\(storageToken).append(MethodCall(arguments: arguments))"
+	static func makeStoreCallToStorageExpr(bindingSyntax: PatternBindingSyntax, accessorDecl: AccessorDeclSyntax) throws -> ExprSyntax {
+		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
+		return "container.append(mock: self, call: MethodCall(arguments: arguments), function: \"\(raw: propertySignatureString)\")"
 	}
 	
 	private static func makeGenericType(_ name: TokenSyntax, from funcDecl: FunctionDeclSyntax) -> some TypeSyntaxProtocol {
