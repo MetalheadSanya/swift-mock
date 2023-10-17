@@ -63,6 +63,7 @@ class InOrderContainer: CallContainer {
 			}
 			
 			callCount += 1
+			lastCheckedIndex = index
 		}
 		guard times(callCount) else {
 			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)")
