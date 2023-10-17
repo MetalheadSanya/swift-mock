@@ -18,6 +18,8 @@ public class VerifyContainer: CallContainer {
 		calls.append(call)
 		functions.append(function)
 		isVerified.append(false)
+		
+		InOrderContainer.append(mock: mock, call: call, function: function)
 	}
 	
 	public func verify<T>(
