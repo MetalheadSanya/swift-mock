@@ -5,3 +5,7 @@ public var testFailureReport: (String) -> Void = { _ in
 	
 }
 
+public func cleanUpMock() {
+	InOrderContainer.clear()
+}
+

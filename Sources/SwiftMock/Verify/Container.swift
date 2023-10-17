@@ -6,8 +6,6 @@
 //
 
 public protocol CallContainer {
-	
-	func append<T>(mock: AnyObject, call: MethodCall<T>, function: String)
 	func verify<T>(
 		mock: AnyObject,
 		matcher: ArgumentMatcher<T>,

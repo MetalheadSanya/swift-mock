@@ -1,0 +1,104 @@
+//
+//  InOrderTests.swift
+//
+//
+//  Created by Alexandr Zalutskiy on 17/10/2023.
+//
+
+import Foundation
+import SwiftMock
+import XCTest
+
+final class InOrderTests: XCTestCase {
+	override func setUp() {
+		super.setUp()
+		continueAfterFailure = false
+		testFailureReport = { message in
+			XCTFail(message)
+		}
+	}
+	
+	override func tearDown() {
+		cleanUpMock()
+		super.tearDown()
+	}
+	
+	func testInOrder() throws {
+		let mock = ThrowsProtocolMock()
+		
+		when(mock.$call()).thenReturn(6)
+		when(mock.$call0()).thenReturn()
+		
+		_ = try mock.call()
+		try mock.call0()
+		
+		let inOrder = inOrder(mock)
+		
+		inOrder.verify(mock).call()
+		inOrder.verify(mock).call0()
+	}
+	
+	#if !os(Linux)
+	func testInOrderFailure() throws {
+		let mock = ThrowsProtocolMock()
+		
+		when(mock.$call()).thenReturn(6)
+		when(mock.$call0()).thenReturn()
+		
+		_ = try mock.call()
+		try mock.call0()
+		
+		XCTExpectFailure {
+			let inOrder = inOrder(mock)
+
+			inOrder.verify(mock).call0()
+			inOrder.verify(mock).call()
+		}
+		
+	}
+	#endif
+	
+	func testTwoMockObject() throws {
+		let mock0 = ThrowsProtocolMock()
+		let mock1 = SimpleProtocolMock()
+		
+		when(mock0.$call()).thenReturn(6)
+		when(mock0.$call0()).thenReturn()
+		
+		when(mock1.$call()).thenReturn(4)
+		
+		_ = try mock0.call()
+		_ = mock1.call()
+		try mock0.call0()
+		
+		let inOrder = inOrder(mock0, mock1)
+		
+		inOrder.verify(mock0).call()
+		inOrder.verify(mock1).call()
+		inOrder.verify(mock0).call0()
+	}
+	
+	func testWithDistanceBetweenCalls() throws {
+		let mock0 = ThrowsProtocolMock()
+		let mock1 = SimpleProtocolMock()
+		
+		when(mock0.$call()).thenReturn(6)
+		when(mock0.$call0()).thenReturn()
+		
+		when(mock1.$call()).thenReturn(4)
+		
+		_ = try mock0.call()
+		_ = mock1.call()
+		_ = mock1.call()
+		_ = mock1.call()
+		_ = try mock0.call()
+		try mock0.call0()
+		
+		let inOrder = inOrder(mock0, mock1)
+		
+		inOrder.verify(mock0).call()
+		inOrder.verify(mock1).call()
+		inOrder.verify(mock0).call0()
+		
+	}
+}
