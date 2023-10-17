@@ -112,7 +112,7 @@ func test() {
 
 ### Checking that method was called specific times
 
-The ``verify(_:times:)`` method can check not only that the method was called once, but also a specific number of times. The `times` parameter of the ``verify(_:times:)`` method is used for this. This parameter type is ``TimesMatcher`` and you can use ``times(_:)``, ``never()``, ``atLeast(_:)``, ``atMost(_:)`` as examples, or create your own.
+The ``verify(_:times:)`` function can check not only that the method was called once, but also a specific number of times. The `times` parameter of the ``verify(_:times:)`` method is used for this. This parameter type is ``TimesMatcher`` and you can use ``times(_:)``, ``never()``, ``atLeast(_:)``, ``atMost(_:)`` as examples, or create your own.
 
 The following example checks that the method has been called at least twice.
 
@@ -138,3 +138,38 @@ func test() {
 ```
 
 > Important: Using ``atLeast(_:)`` and ``atMost(_:)`` will mark all calls that match the passed ``ArgumentMatcher``s as verified.
+
+### Verification in order
+
+The ``inOrder(_:)`` function allows you to check that mock methods were called in a certain order. To do this, you need to call the ``inOrder(_:)`` function and pass there the mocks for interaction with which you want to check. The function returns the ``InOrder`` class which has a ``InOrder/verify(_:times:)`` method that works similar to the function of the same name.
+
+```swift 
+@Mock
+public protocol AlbumService {
+	func getAlbumName(id: String) async throws -> String
+}
+
+
+func test() {
+	let mock = AlbumServiceMock()
+
+	when(mock.$getAlbumName())
+		.thenReturn("#4")
+		.thenReturn("Inspiration Is Dead")
+
+	let inOrder = inOrder(mock)
+
+	_ = mock.getAlbumName(id: "id1")
+	_ = mock.getAlbumName(id: "id2")
+	
+	// Check that method was called with id: "id1"
+	inOrder.verify(mock).getAlbumName(id: eq("id1")) 
+	// Check that method was called with id: "id2"
+	// after than with id: "id1"
+	inOrder.verify(mock).getAlbumName(id: eq("id2"))
+}
+```
+
+> Tips: Verification in order is flexible - you don't have to verify all interactions one-by-one but only those that you are interested in testing in order.
+
+> Important: ``InOrder`` verification is 'greedy', but you will hardly ever notice it. If you want to find out more, read: <doc:Greedy-Algorithm>.

@@ -96,8 +96,7 @@ final class InOrderTests: XCTestCase {
 		
 		let inOrder = inOrder(mock0, mock1)
 		
-		inOrder.verify(mock0).call()
-		inOrder.verify(mock1).call()
+		inOrder.verify(mock0, times: times(2)).call()
 		inOrder.verify(mock0).call0()
 		
 	}

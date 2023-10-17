@@ -1,8 +1,6 @@
 /// Creates an argument matcher that tests an argument with two provided ``ArgumentMatcher``.
 /// Created ``ArgumentMatcher`` tests that argument satisfies both provided matchers.
 ///
-/// - Parameters:
-///
 ///	- Parameters:
 ///		- mather0: First argument mather. If this argumen matcher unsuccessfully tests an argument,
 ///			the second one won't be called.

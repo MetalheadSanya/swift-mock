@@ -25,6 +25,10 @@ The ``verify(_:times:)`` function is used to verify the call of your mocks. This
 - <doc:Argument-Matchers>
 - <doc:Verifying>
 
+### Engine
+
+- <doc:Greedy-Algorithm>
+
 ### Basic
 
 - ``when(_:)-2f4dp``
@@ -32,6 +36,11 @@ The ``verify(_:times:)`` function is used to verify the call of your mocks. This
 - ``when(_:)-1l8q0``
 - ``when(_:)-35bf6``
 - ``verify(_:times:)``
+- ``inOrder(_:)``
+
+### Verifying
+
+- ``InOrder``
 
 ### Argument Mathers
 
@@ -84,3 +93,9 @@ The ``verify(_:times:)`` function is used to verify the call of your mocks. This
 
 - ``MethodCall``
 - ``Verifiable``
+
+### Internal Containers
+
+- ``CallContainer``
+- ``VerifyContainer``
+

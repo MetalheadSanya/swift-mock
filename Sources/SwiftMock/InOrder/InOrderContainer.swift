@@ -49,6 +49,9 @@ class InOrderContainer: CallContainer {
 		var lastCheckedIndex = startIndex
 
 		for index in startIndex..<calls.endIndex {
+			guard mock === mocks[index] else {
+				continue
+			}
 			guard functions[index] == function else {
 				continue
 			}
@@ -60,10 +63,6 @@ class InOrderContainer: CallContainer {
 			}
 			
 			callCount += 1
-			
-			if times(callCount) {
-				break
-			}
 		}
 		guard times(callCount) else {
 			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)")
