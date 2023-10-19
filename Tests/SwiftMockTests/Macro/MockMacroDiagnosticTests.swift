@@ -84,50 +84,6 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		#endif
 	}
 	
-	func testNotAPublicProtocolDiagnostic() throws {
-		#if canImport(SwiftMockMacros)
-			assertMacroExpansion(
-			"""
-			@Mock
-			protocol Test { }
-			""",
-			expandedSource:
-			"""
-			protocol Test { }
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' can only be applied to a 'public protocol'", line: 2, column: 1)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
-	
-	func testInternalProtocolDiagnostic() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			internal protocol Test { }
-			""",
-			expandedSource:
-			"""
-			internal protocol Test { }
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' can only be applied to a 'public protocol'", line: 2, column: 1)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
-	
 	func testProtocolWithPrimaryAssociatedTypesDiagnostic() throws {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

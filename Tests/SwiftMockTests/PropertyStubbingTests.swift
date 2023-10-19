@@ -2,12 +2,12 @@ import SwiftMock
 import XCTest
 
 @Mock
-public protocol GetPropertyProtocol {
+protocol GetPropertyProtocol {
 	var property: Int { get }
 }
 
 @Mock
-public protocol GetSetPropertyProtocol {
+protocol GetSetPropertyProtocol {
 	var property: Int { get set }
 }
 

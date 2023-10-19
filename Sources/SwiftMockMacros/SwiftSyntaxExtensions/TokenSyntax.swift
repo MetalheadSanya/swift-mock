@@ -16,6 +16,10 @@ extension TokenSyntax {
 		.identifier("Mock")
 	}
 	
+	var isPublic: Bool {
+		trimmed.text == TokenSyntax.keyword(.public).text
+	}
+	
 	var isReasync: Bool {
 		trimmed.text == TokenSyntax.keyword(.reasync).text
 	}

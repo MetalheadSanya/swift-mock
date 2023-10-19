@@ -2,7 +2,7 @@ import SwiftMock
 import XCTest
 
 @Mock
-public protocol VerifyTestsProtocol {
+protocol VerifyTestsProtocol {
 	func call(argument0: Int, argument1: Int) -> Int
 }
 

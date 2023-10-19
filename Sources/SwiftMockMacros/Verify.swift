@@ -5,7 +5,7 @@ extension MockMacro {
 	static func makeVerifyType(_ protocolDecl: ProtocolDeclSyntax) throws -> StructDeclSyntax {
 		try StructDeclSyntax(
 			modifiers: DeclModifierListSyntax {
-				DeclModifierSyntax(name: .keyword(.public))
+				if protocolDecl.isPublic { .public }
 			},
 			name: "Verify",
 			inheritanceClause: InheritanceClauseSyntax {
@@ -71,7 +71,7 @@ extension MockMacro {
 	private static func makeInit(protocolDecl: ProtocolDeclSyntax) -> InitializerDeclSyntax {
 		InitializerDeclSyntax(
 			modifiers: DeclModifierListSyntax {
-				DeclModifierSyntax(name: .keyword(.public))
+				if protocolDecl.isPublic { .public }
 			},
 			signature: FunctionSignatureSyntax(
 				parameterClause: FunctionParameterClauseSyntax {
@@ -94,7 +94,7 @@ extension MockMacro {
 		let funcSignatureString = try makeFunctionSignatureString(funcDecl: funcDecl)
 		return funcDecl
 			.with(\.modifiers, DeclModifierListSyntax {
-				publicModifier
+				if protocolDecl.isPublic { .public }
 			})
 			.with(\.signature, FunctionSignatureSyntax(
 				parameterClause: wrapToArgumentMatcher(funcDecl.signature.parameterClause),
@@ -129,7 +129,7 @@ extension MockMacro {
 				let decl = DeclSyntax(
 					fromProtocol: FunctionDeclSyntax(
 						modifiers: DeclModifierListSyntax {
-							publicModifier
+							if protocolDecl.isPublic { .public }
 						},
 						name: makeVerifyPropertyToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl),
 						signature: makeVerifyPropertyFunctionSignature(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl),
@@ -246,8 +246,14 @@ extension MockMacro {
 	
 	// MARK: - Integration to other files
 	
-	static func makeVerifyCallStorageProperty() throws -> VariableDeclSyntax {
-		try VariableDeclSyntax("public let container = VerifyContainer()")
+	static func makeVerifyCallStorageProperty(
+		isPublic: Bool
+	) throws -> VariableDeclSyntax {
+		var text = "let container = VerifyContainer()"
+		if isPublic {
+			text = TokenSyntax.keyword(.public).text + " " + text
+		}
+		return try VariableDeclSyntax("\(raw: text)")
 	}
 	
 	static func makeCallStorageProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {

@@ -44,6 +44,39 @@ final class MockMacroTests: XCTestCase {
 		#endif
 	}
 	
+	func testInternalProtocol() {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			internal protocol Test: AnyObject { }
+			""",
+			expandedSource:
+			"""
+			internal protocol Test: AnyObject { }
+			
+			final class TestMock: Test, Verifiable {
+				struct Verify: MockVerify {
+					let mock: TestMock
+					let container: CallContainer
+					let times: TimesMatcher
+					init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+				}
+				let container = VerifyContainer()
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
+	
 	func testFunctionWithoutArgumentsAndReturnType() {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

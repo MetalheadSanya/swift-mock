@@ -6,34 +6,34 @@ enum CustomError: Error {
 }
 
 @Mock
-public protocol EmptyProtocol {
+protocol EmptyProtocol {
 	func call()
 }
 
 @Mock
-public protocol SimpleProtocol {
+protocol SimpleProtocol {
 	func call() -> Int
 }
 
 @Mock
-public protocol TwoArgumentsProtocol {
+protocol TwoArgumentsProtocol {
 	func call(argument0: Int, argument1: Int) -> Int
 }
 
 @Mock
-public protocol ThrowsProtocol {
+protocol ThrowsProtocol {
 	func call0() throws
 	func call() throws -> Int
 }
 
 @Mock
-public protocol AsyncProtocol {
+protocol AsyncProtocol {
 	func call0() async
 	func call() async -> Int
 }
 
 @Mock
-public protocol AsyncThrowsProtocol {
+protocol AsyncThrowsProtocol {
 	func call0() async throws
 	func call() async throws -> Int
 }

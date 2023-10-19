@@ -20,8 +20,7 @@ public struct MockMacro: PeerMacro {
 				DeclSyntax(
 					try ClassDeclSyntax(
 						modifiers: DeclModifierListSyntax {
-							// FIXME: add support for internal protocols
-							DeclModifierSyntax(name: .keyword(.public))
+							if declaration.isPublic { .public }
 							DeclModifierSyntax(name: .keyword(.final))
 						},
 						name: mockTypeToken,
@@ -31,18 +30,18 @@ public struct MockMacro: PeerMacro {
 						}
 					) {
 						try makeVerifyType(declaration)
-						try makeVerifyCallStorageProperty()
+						try makeVerifyCallStorageProperty(isPublic: declaration.isPublic)
 						for member in declaration.memberBlock.members {
 							if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
 								makeInvocationContainerProperty(funcDecl: funcDecl)
-								makeSignatureMethod(from: funcDecl)
+								makeSignatureMethod(from: funcDecl, isPublic: declaration.isPublic)
 								funcDecl
 									.with(\.modifiers, DeclModifierListSyntax {
-										DeclModifierSyntax(name: .keyword(.public))
+										if declaration.isPublic { .public }
 									})
 									.with(\.body, try makeMockMethodBody(from: funcDecl, type: mockTypeToken))
 							} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
-								for decl in try makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
+								for decl in try makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken, isPublic: declaration.isPublic) {
 									decl
 								}
 							}
@@ -76,12 +75,15 @@ public struct MockMacro: PeerMacro {
 		)
 	}
 	
-	private static func makeSignatureMethod(from funcDecl: FunctionDeclSyntax) -> FunctionDeclSyntax {
+	private static func makeSignatureMethod(
+		from funcDecl: FunctionDeclSyntax,
+		isPublic: Bool
+	) -> FunctionDeclSyntax {
 		let prefix = makeTypePrefix(funcDecl: funcDecl)
 		let signatureType = TokenSyntax.identifier(prefix + "MethodSignature")
 		return funcDecl
 			.with(\.modifiers, DeclModifierListSyntax {
-				DeclModifierSyntax(name: .keyword(.public))
+				if isPublic { .public }
 			})
 			.with(\.name, TokenSyntax.identifier("$" + funcDecl.name.text))
 			.with(\.signature, FunctionSignatureSyntax(
