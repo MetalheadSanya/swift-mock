@@ -762,4 +762,60 @@ final class MockMacroTests: XCTestCase {
 		throw XCTSkip("macros are only supported when running tests for the host platform")
 		#endif
 	}
+	
+	func testGenericFunctionWithSingleArgument() {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				func call<T>(_ argument: T)
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				func call<T>(_ argument: T)
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let container: CallContainer
+					let times: TimesMatcher
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+					public
+						func call<T>(_ argument: @escaping ArgumentMatcher<T> = any()) -> Void {
+						let argumentMatcher0 = argument
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:)")
+					}
+				}
+				public let container = VerifyContainer()
+				private let call___ = MethodInvocationContainer()
+				public
+					func $call<T>(_ argument: @escaping ArgumentMatcher<T> = any()) -> MethodSignature<(T), Void> {
+					let argumentMatcher0 = argument
+					return MethodSignature<(T), Void>(argumentMatcher: argumentMatcher0, register: {
+							self.call___.append($0)
+						})
+				}
+				public
+					func call<T>(_ argument: T) {
+					let arguments = (argument)
+					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call<T>(_:)")
+					return call___.find(with: arguments, type: "TestMock", function: "call<T>(_:)")
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
 }

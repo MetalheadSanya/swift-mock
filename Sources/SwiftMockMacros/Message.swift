@@ -16,6 +16,11 @@ extension MockMacro {
 	static func makeFunctionSignatureString(funcDecl: FunctionDeclSyntax) throws -> String {
 		var literal = ""
 		literal += funcDecl.name.text
+		if let genericParameterClause = funcDecl.genericParameterClause {
+			literal += "<"
+			literal += genericParameterClause.parameters.map(\.name.text).joined(separator: ",")
+			literal += ">"
+		}
 		literal += "("
 		for parameter in funcDecl.signature.parameterClause.parameters {
 			literal += parameter.firstName.text

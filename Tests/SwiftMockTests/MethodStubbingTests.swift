@@ -38,6 +38,11 @@ protocol AsyncThrowsProtocol {
 	func call() async throws -> Int
 }
 
+@Mock
+protocol GenericMethodProtocol {
+	func oneParameter<T>(parameter: T) -> Int
+}
+
 final class MethodStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
@@ -150,5 +155,34 @@ final class MethodStubbingTests: XCTestCase {
 			catchedError = error
 		}
 		XCTAssertNil(catchedError)
+	}
+	
+	func testGenericWithOneParameter() {
+		let mock = GenericMethodProtocolMock()
+		
+		let expectationOne = 6
+		
+		when(mock.$oneParameter(parameter: any(type: Int.self)))
+			.thenReturn(expectationOne)
+		
+		let actualOne = mock.oneParameter(parameter: 6)
+		
+		XCTAssertEqual(actualOne, expectationOne)
+		
+		let expectationTwo = 0
+		let parameterTwo = "9"
+		
+		when(mock.$oneParameter(parameter: eq(parameterTwo)))
+			.thenReturn(expectationTwo)
+		
+		let actualTwo = mock.oneParameter(parameter: parameterTwo)
+		
+		XCTAssertEqual(actualTwo, expectationTwo)
+		
+		#if !os(Linux)
+		XCTExpectFailure {
+			_ = mock.oneParameter(parameter: CustomError.unknown)
+		}
+		#endif
 	}
 }
