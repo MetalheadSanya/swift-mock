@@ -161,4 +161,21 @@ final class VerifyTests: XCTestCase {
 		}
 		#endif
 	}
+	
+	func testGenericWithOneArgmuentAndReturn() {
+		let mock = GenericMethodProtocolMock()
+		
+		when(mock.$oneParameterAndReturn(parameter: any(type: Int.self)))
+			.thenReturn(9)
+		
+		_ = mock.oneParameterAndReturn(parameter: 0)
+		
+		verify(mock).oneParameterAndReturn(parameter: any(type: Int.self))
+		
+		#if !os(Linux)
+		XCTExpectFailure {
+			verify(mock).oneParameterAndReturn(parameter: any(type: String.self))
+		}
+		#endif
+	}
 }
