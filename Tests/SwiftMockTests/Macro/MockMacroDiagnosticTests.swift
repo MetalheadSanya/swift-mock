@@ -309,30 +309,4 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		throw XCTSkip("macros are only supported when running tests for the host platform")
 		#endif
 	}
-	
-	func testPropertyWithAsyncSpecifier() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			public protocol Test {
-				var test: Int { get async }
-			}
-			""",
-			expandedSource:
-			"""
-			public protocol Test {
-				var test: Int { get async }
-			}
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support async properties", line: 3, column: 22)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
 }

@@ -310,6 +310,114 @@ final class MockMacroTests: XCTestCase {
 		throw XCTSkip("macros are only supported when running tests for the host platform")
 		#endif
 	}
+	
+	func testGetAsyncProperty() throws {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				var prop: Int { get async }
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				var prop: Int { get async }
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let container: CallContainer
+					let times: TimesMatcher
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+					public func propGetter() {
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async")
+					}
+				}
+				public let container = VerifyContainer()
+				private var prop___getter: [AsyncMethodInvocation<(), Int>] = []
+				public func $propGetter() -> AsyncMethodSignature<(), Int> {
+					return AsyncMethodSignature<(), Int>(argumentMatcher: any(), register: {
+							self.prop___getter.append($0)
+						})
+				}
+				public var prop: Int {
+					get async {
+						let arguments = ()
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop async")
+						return await AsyncMethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock", function: "prop async")
+					}
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
+	
+	func testGetAsyncThrowsProperty() throws {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				var prop: Int { get async throws }
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				var prop: Int { get async throws }
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let container: CallContainer
+					let times: TimesMatcher
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+					public func propGetter() {
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async throws")
+					}
+				}
+				public let container = VerifyContainer()
+				private var prop___getter: [AsyncThrowsMethodInvocation<(), Int>] = []
+				public func $propGetter() -> AsyncThrowsMethodSignature<(), Int> {
+					return AsyncThrowsMethodSignature<(), Int>(argumentMatcher: any(), register: {
+							self.prop___getter.append($0)
+						})
+				}
+				public var prop: Int {
+					get async throws {
+						let arguments = ()
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop async throws")
+						return try await AsyncThrowsMethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock", function: "prop async throws")
+					}
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
 
 	func testFunctionWithoutArguments() {
 	#if canImport(SwiftMockMacros)

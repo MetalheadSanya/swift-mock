@@ -16,6 +16,16 @@ protocol ThrowsGetPropertyProtocol {
 	var property: Int { get throws }
 }
 
+@Mock
+protocol AsyncGetPropertyProtocol {
+	var property: Int { get async }
+}
+
+@Mock
+protocol AsyncThrowsGetPropertyProtocol {
+	var property: Int { get async throws }
+}
+
 final class PropertyStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
@@ -100,5 +110,48 @@ final class PropertyStubbingTests: XCTestCase {
 			.thenThrow(expected)
 		
 		XCTAssertThrowsError(try mock.property)
+	}
+	
+	func testAsyncGetProperty() async {
+		let mock = AsyncGetPropertyProtocolMock()
+		
+		let expected = 4
+		
+		when(mock.$propertyGetter())
+			.thenReturn(expected)
+		
+		let actual = await mock.property
+		
+		XCTAssertEqual(expected, actual)
+	}
+	
+	func testAsyncThrowsGetPropertyReturn() async throws {
+		let mock = AsyncThrowsGetPropertyProtocolMock()
+		
+		let expected = 4
+		
+		when(mock.$propertyGetter())
+			.thenReturn(expected)
+		
+		let actual = try await mock.property
+		
+		XCTAssertEqual(expected, actual)
+	}
+	
+	func testAsyncThrowsGetPropertyThrow() async throws {
+		let mock = AsyncThrowsGetPropertyProtocolMock()
+		
+		let expected = CustomError.unknown
+		
+		when(mock.$propertyGetter())
+			.thenThrow(expected)
+		
+		var catchedError: Error?
+		do {
+			_ = try await mock.property
+		} catch {
+			catchedError = error
+		}
+		XCTAssertNotNil(catchedError)
 	}
 }

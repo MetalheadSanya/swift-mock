@@ -2,10 +2,9 @@ import SwiftMock
 import SwiftSyntax
 import SwiftParser
 
-//@Mock
-//public protocol Test {
-//	func call()
-//}
+public protocol Test {
+	var prop: Int { get async throws }
+}
 
 func inspect(_ node: Syntax) {
 	print(node.debugDescription)

@@ -120,11 +120,11 @@ extension MockMacro {
 		accessorDecl: AccessorDeclSyntax
 	) -> TypeSyntax {
 		let returnType = getBindingType(from: bindingSyntax)
-		let isThrows = accessorDecl.effectSpecifiers?.throwsSpecifier != nil
 		return TypeSyntax(
 			fromProtocol: ArrayTypeSyntax(
 				element: makeMethodInvocationType(
-					isThrows: isThrows,
+					isAsync: accessorDecl.isAsync,
+					isThrows: accessorDecl.isThrows,
 					returnType: returnType
 				)
 			)
@@ -214,7 +214,8 @@ extension MockMacro {
 				ReturnStmtSyntax(
 					expression: FunctionCallExprSyntax(
 						calledExpression: makeMethodSignatureExpr(
-							isThrows: accessorDecl.effectSpecifiers?.throwsSpecifier != nil,
+							isAsync: accessorDecl.isAsync,
+							isThrows: accessorDecl.isThrows,
 							returnType: returnType
 						),
 						leftParen: .leftParenToken(),
@@ -242,10 +243,10 @@ extension MockMacro {
 		accessorDecl: AccessorDeclSyntax
 	) -> ReturnClauseSyntax {
 		let returnType = getBindingType(from: bindingSyntax)
-		let isThrows = accessorDecl.effectSpecifiers?.throwsSpecifier != nil
 		return ReturnClauseSyntax(
 			type: makeMethodSignatureType(
-				isThrows: isThrows,
+				isAsync: accessorDecl.isAsync,
+				isThrows: accessorDecl.isThrows,
 				returnType: returnType
 			)
 		)
@@ -318,11 +319,15 @@ extension MockMacro {
 		isPublic: Bool
 	) throws -> DeclSyntax {
 		var isThrows = false
+		var isAsync = false
 		if let accessorBlock = bindingSyntax.accessorBlock {
 			if case let .`accessors`(accessorList) = accessorBlock.accessors {
 				for accessorDecl in accessorList {
-					if accessorDecl.effectSpecifiers?.throwsSpecifier != nil {
+					if accessorDecl.isThrows {
 						isThrows = true
+					}
+					if accessorDecl.isAsync {
+						isAsync = true
 					}
 				}
 			}
@@ -330,6 +335,7 @@ extension MockMacro {
 		let getAccessorDecl = AccessorDeclSyntax(
 			accessorSpecifier: .keyword(.get),
 			effectSpecifiers: AccessorEffectSpecifiersSyntax(
+				asyncSpecifier: isAsync ? .keyword(.async) : nil,
 				throwsSpecifier: isThrows ? .keyword(.throws) : nil
 			)
 		)
@@ -342,7 +348,21 @@ extension MockMacro {
 			try getAccessorDecl.with(\.body, CodeBlockSyntax {
 				"let arguments = ()"
 				try makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: getAccessorDecl)
-				if getAccessorDecl.effectSpecifiers?.throwsSpecifier != nil {
+				if getAccessorDecl.isAsync && getAccessorDecl.isThrows {
+					ReturnStmtSyntax(
+						expression: TryExprSyntax(
+							expression: AwaitExprSyntax(
+								expression: returnValue
+							)
+						)
+					)
+				} else if getAccessorDecl.isAsync {
+					ReturnStmtSyntax(
+						expression: AwaitExprSyntax(
+							expression: returnValue
+						)
+					)
+				} else if getAccessorDecl.isThrows {
 					ReturnStmtSyntax(
 						expression: TryExprSyntax(
 							expression: returnValue
@@ -408,8 +428,8 @@ extension MockMacro {
 		mockTypeToken: TokenSyntax
 	) throws -> ExprSyntax {
 		let invocationType = makeTokenWithPrefix(
-			isAsync: false,
-			isThrows: accessorDecl.effectSpecifiers?.throwsSpecifier != nil,
+			isAsync: accessorDecl.isAsync,
+			isThrows: accessorDecl.isThrows,
 			token: .identifier("MethodInvocation")
 		)
 		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)

@@ -32,13 +32,6 @@ extension Diagnostic {
 					let diagnostic = Diagnostic(node: accessorSpecifier, message: DiagnosticMessage.propertyAccessorMustBeGetOrSet)
 					throw DiagnosticError(diagnostic: diagnostic)
 				}
-				
-				if let effectSpecifiers = accessorDecl.effectSpecifiers {
-					if let asyncSpecifier = effectSpecifiers.asyncSpecifier {
-						let diagnostic = Diagnostic(node: asyncSpecifier, message: DiagnosticMessage.asyncPropertiesIsNotSupported)
-						throw DiagnosticError(diagnostic: diagnostic)
-					}
-				}
 			}
 		}
 	}
