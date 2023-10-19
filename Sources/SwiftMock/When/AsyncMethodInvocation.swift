@@ -3,7 +3,7 @@
 //#endif
 
 public final class AsyncMethodInvocation<Arguments, Result> {
-	private let match: ArgumentMatcher<Arguments>
+	let match: ArgumentMatcher<Arguments>
 	private var evaluations: [(Arguments) async -> Result]
 	private var current = 0
 	
@@ -27,23 +27,6 @@ public final class AsyncMethodInvocation<Arguments, Result> {
 		}
 		let evaluation = evaluations[current]
 		return await evaluation(arguments)
-	}
-	
-	public static func find(
-		in container: [AsyncMethodInvocation<Arguments, Result>],
-		with arguments: Arguments,
-		type: String,
-		function: String
-	) async -> Result {
-		guard let invocation = container.last(where: { invocation in
-			invocation.match(arguments)
-		}) else {
-			//			#if canImport(XCTest)
-			//			XCTFail("\(type).\(function): could not find invocation for arguments: \(criteria)")
-			//			#endif
-			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
-		}
-		return await invocation.eval(arguments)
 	}
 }
 
