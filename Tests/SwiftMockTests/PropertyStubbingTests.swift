@@ -11,6 +11,11 @@ protocol GetSetPropertyProtocol {
 	var property: Int { get set }
 }
 
+@Mock
+protocol ThrowsGetPropertyProtocol {
+	var property: Int { get throws }
+}
+
 final class PropertyStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
@@ -71,5 +76,29 @@ final class PropertyStubbingTests: XCTestCase {
 			mock.property = 7
 		}
 		#endif
+	}
+	
+	func testThrowsGetPropertyReturn() throws {
+		let mock = ThrowsGetPropertyProtocolMock()
+		
+		let expected = 4
+		
+		when(mock.$propertyGetter())
+			.thenReturn(expected)
+		
+		let actual = try mock.property
+		
+		XCTAssertEqual(expected, actual)
+	}
+	
+	func testThrowsGetPropertyThrow() throws {
+		let mock = ThrowsGetPropertyProtocolMock()
+		
+		let expected = CustomError.unknown
+		
+		when(mock.$propertyGetter())
+			.thenThrow(expected)
+		
+		XCTAssertThrowsError(try mock.property)
 	}
 }

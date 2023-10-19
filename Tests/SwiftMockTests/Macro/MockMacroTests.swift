@@ -252,12 +252,65 @@ final class MockMacroTests: XCTestCase {
 			macros: testMacros,
 			indentationWidth: .tab
 		)
-#else
+		#else
 		throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
+		#endif
+	}
+	
+	func testGetThrowsProperty() throws {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			public protocol Test {
+				var prop: Int { get throws }
+			}
+			""",
+			expandedSource:
+			"""
+			public protocol Test {
+				var prop: Int { get throws }
+			}
+			
+			public final class TestMock: Test , Verifiable {
+				public struct Verify: MockVerify {
+					let mock: TestMock
+					let container: CallContainer
+					let times: TimesMatcher
+					public init(mock: TestMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+					public func propGetter() {
+						let argumentMatcher0: ArgumentMatcher<()> = any()
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop throws")
+					}
+				}
+				public let container = VerifyContainer()
+				private var prop___getter: [ThrowsMethodInvocation<(), Int>] = []
+				public func $propGetter() -> ThrowsMethodSignature<(), Int> {
+					return ThrowsMethodSignature<(), Int>(argumentMatcher: any(), register: {
+							self.prop___getter.append($0)
+						})
+				}
+				public var prop: Int {
+					get throws {
+						let arguments = ()
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "prop throws")
+						return try ThrowsMethodInvocation.find(in: prop___getter, with: arguments, type: "TestMock", function: "prop throws")
+					}
+				}
+			}
+			""",
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
 	}
 
-	
 	func testFunctionWithoutArguments() {
 	#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

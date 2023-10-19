@@ -94,7 +94,7 @@ extension MockMacro {
 		)
 	}
 	
-	private static func makeTokenWithPrefix(
+	static func makeTokenWithPrefix(
 		isAsync: Bool,
 		isThrows: Bool,
 		token: TokenSyntax

@@ -22,11 +22,11 @@ extension MockMacro {
 			literal += ":"
 		}
 		literal += ")"
-		if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
-			literal += " async"
+		if let asyncSpecifier = funcDecl.signature.effectSpecifiers?.asyncSpecifier {
+			literal += " " + asyncSpecifier.text
 		}
-		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
-			literal += " throws"
+		if let throwsSpecifier = funcDecl.signature.effectSpecifiers?.throwsSpecifier {
+			literal += " " + throwsSpecifier.text
 		}
 		if let returnClause = funcDecl.signature.returnClause {
 			literal += " -> "
@@ -47,6 +47,9 @@ extension MockMacro {
 		literal += text
 		if accessorDecl.accessorSpecifier.trimmed.text == TokenSyntax.keyword(.set).text {
 			literal += "="
+		}
+		if let throwsSpecifier = accessorDecl.effectSpecifiers?.throwsSpecifier {
+			literal += " " + throwsSpecifier.text
 		}
 		return literal
 	}

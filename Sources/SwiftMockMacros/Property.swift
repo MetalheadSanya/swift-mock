@@ -55,7 +55,10 @@ extension MockMacro {
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
 			return PatternBindingListSyntax {
-				makeGetterPatterBinding(from: patternBinding)
+				makeGetterPatterBinding(
+					bindingSyntax: patternBinding,
+					accessorDecl: accessorDecl
+				)
 			}
 		case TokenSyntax.keyword(.set).text:
 			return PatternBindingListSyntax {
@@ -72,15 +75,23 @@ extension MockMacro {
 	
 	// MARK: - Make Getter Invocation Container
 	
-	private static func makeGetterPatterBinding(from binding: PatternBindingSyntax) -> PatternBindingSyntax {
+	private static func makeGetterPatterBinding(
+		bindingSyntax binding: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> PatternBindingSyntax {
 		PatternBindingSyntax(
 			pattern: makeGetterInvocationContainerPattern(from: binding),
-			typeAnnotation: makeGetterInvocationContainerTypeAnnotation(from: binding),
+			typeAnnotation: makeGetterInvocationContainerTypeAnnotation(
+				bindingSyntax: binding,
+				accessorDecl: accessorDecl
+			),
 			initializer: makeInvocationContainerInitializerClause()
 		)
 	}
 	
-	private static func makeGetterInvocationContainerPattern(from bindingSyntax: PatternBindingSyntax) -> PatternSyntax {
+	private static func makeGetterInvocationContainerPattern(
+		from bindingSyntax: PatternBindingSyntax
+	) -> PatternSyntax {
 		let token = makeGetterInvocationContainerToken(from: bindingSyntax)
 		return PatternSyntax(
 			IdentifierPatternSyntax(identifier: token)
@@ -92,17 +103,33 @@ extension MockMacro {
 		return .identifier(propertyPattern.identifier.text + "___getter")
 	}
 	
-	private static func makeGetterInvocationContainerTypeAnnotation(from bindingSyntax: PatternBindingSyntax) -> TypeAnnotationSyntax {
-		TypeAnnotationSyntax(type: makeGetterInvocationContainerType(from: bindingSyntax))
-	}
-	
-	private static func makeGetterInvocationContainerType(from bindingSyntax: PatternBindingSyntax) -> TypeSyntax {
-		let returnType = getBindingType(from: bindingSyntax)
-		return TypeSyntax(
-			fromProtocol: ArrayTypeSyntax(
-				element: makeMethodInvocationType(returnType: returnType)
+	private static func makeGetterInvocationContainerTypeAnnotation(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> TypeAnnotationSyntax {
+		TypeAnnotationSyntax(
+			type: makeGetterInvocationContainerType(
+				bindingSyntax: bindingSyntax,
+				accessorDecl: accessorDecl
 			)
 		)
+	}
+	
+	private static func makeGetterInvocationContainerType(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> TypeSyntax {
+		let returnType = getBindingType(from: bindingSyntax)
+		let isThrows = accessorDecl.effectSpecifiers?.throwsSpecifier != nil
+		return TypeSyntax(
+			fromProtocol: ArrayTypeSyntax(
+				element: makeMethodInvocationType(
+					isThrows: isThrows,
+					returnType: returnType
+				)
+			)
+		)
+		
 	}
 	
 	// MARK: - Make Setter Invocation Container
@@ -149,7 +176,11 @@ extension MockMacro {
 	) -> DeclSyntax {
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
-			return makeGetterSignatureMethod(from: patternBinding, isPublic: isPublic)
+			return makeGetterSignatureMethod(
+				patternBinding: patternBinding,
+				accessorDecl: accessorDecl,
+				isPublic: isPublic
+			)
 		case TokenSyntax.keyword(.set).text:
 			return makeSetterSignatureMethod(from: patternBinding, isPublic: isPublic)
 		default:
@@ -160,7 +191,8 @@ extension MockMacro {
 	// MARK: - Making the Getter Signature Method
 	
 	static func makeGetterSignatureMethod(
-		from patternBinding: PatternBindingSyntax,
+		patternBinding: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax,
 		isPublic: Bool
 	) -> DeclSyntax {
 		let returnType = getBindingType(from: patternBinding)
@@ -173,12 +205,18 @@ extension MockMacro {
 				name: makeGetterSignatureMethodName(from: patternBinding),
 				signature: FunctionSignatureSyntax(
 					parameterClause: FunctionParameterClauseSyntax { },
-					returnClause: makeGetterSignatureMethodReturnClause(from: patternBinding)
+					returnClause: makeGetterSignatureMethodReturnClause(
+						bindingSyntax: patternBinding,
+						accessorDecl: accessorDecl
+					)
 				)
 			) {
 				ReturnStmtSyntax(
 					expression: FunctionCallExprSyntax(
-						calledExpression: makeMethodSignatureExpr(returnType: returnType),
+						calledExpression: makeMethodSignatureExpr(
+							isThrows: accessorDecl.effectSpecifiers?.throwsSpecifier != nil,
+							returnType: returnType
+						),
 						leftParen: .leftParenToken(),
 						rightParen: .rightParenToken()
 					) {
@@ -199,10 +237,17 @@ extension MockMacro {
 		return .identifier("$" + propertyPattern.identifier.text + "Getter")
 	}
 	
-	private static func makeGetterSignatureMethodReturnClause(from bindingSyntax: PatternBindingSyntax) -> ReturnClauseSyntax {
+	private static func makeGetterSignatureMethodReturnClause(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> ReturnClauseSyntax {
 		let returnType = getBindingType(from: bindingSyntax)
+		let isThrows = accessorDecl.effectSpecifiers?.throwsSpecifier != nil
 		return ReturnClauseSyntax(
-			type: makeMethodSignatureType(returnType: returnType)
+			type: makeMethodSignatureType(
+				isThrows: isThrows,
+				returnType: returnType
+			)
 		)
 	}
 	
@@ -272,20 +317,43 @@ extension MockMacro {
 		mockTypeToken: TokenSyntax,
 		isPublic: Bool
 	) throws -> DeclSyntax {
-		var accessorDeclListSyntax = try AccessorDeclListSyntax {
-			try AccessorDeclSyntax(
-				accessorSpecifier: .keyword(.get)
-			) {
-				"let arguments = ()"
-				try makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)))
-				ReturnStmtSyntax(
-					expression: try makeMockGetterReturnExpr(
-						bindingSyntax: bindingSyntax,
-						accessorDecl: AccessorDeclSyntax(accessorSpecifier: .keyword(.get)),
-						mockTypeToken: mockTypeToken
-					)
-				)
+		var isThrows = false
+		if let accessorBlock = bindingSyntax.accessorBlock {
+			if case let .`accessors`(accessorList) = accessorBlock.accessors {
+				for accessorDecl in accessorList {
+					if accessorDecl.effectSpecifiers?.throwsSpecifier != nil {
+						isThrows = true
+					}
+				}
 			}
+		}
+		let getAccessorDecl = AccessorDeclSyntax(
+			accessorSpecifier: .keyword(.get),
+			effectSpecifiers: AccessorEffectSpecifiersSyntax(
+				throwsSpecifier: isThrows ? .keyword(.throws) : nil
+			)
+		)
+		let returnValue = try makeMockGetterReturnExpr(
+			bindingSyntax: bindingSyntax,
+			accessorDecl: getAccessorDecl,
+			mockTypeToken: mockTypeToken
+		)
+		var accessorDeclListSyntax = try AccessorDeclListSyntax {
+			try getAccessorDecl.with(\.body, CodeBlockSyntax {
+				"let arguments = ()"
+				try makeStoreCallToStorageExpr(bindingSyntax: bindingSyntax, accessorDecl: getAccessorDecl)
+				if getAccessorDecl.effectSpecifiers?.throwsSpecifier != nil {
+					ReturnStmtSyntax(
+						expression: TryExprSyntax(
+							expression: returnValue
+						)
+					)
+				} else {
+					ReturnStmtSyntax(
+						expression: returnValue
+					)
+				}
+			})
 		}
 		guard let accessorBlock = bindingSyntax.accessorBlock else {
 			fatalError("Property MUST have accessor block in protocol declaration")
@@ -339,7 +407,11 @@ extension MockMacro {
 		accessorDecl: AccessorDeclSyntax,
 		mockTypeToken: TokenSyntax
 	) throws -> ExprSyntax {
-		let invocationType = TokenSyntax.identifier("MethodInvocation")
+		let invocationType = makeTokenWithPrefix(
+			isAsync: false,
+			isThrows: accessorDecl.effectSpecifiers?.throwsSpecifier != nil,
+			token: .identifier("MethodInvocation")
+		)
 		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		return ExprSyntax(
 			fromProtocol: FunctionCallExprSyntax(
