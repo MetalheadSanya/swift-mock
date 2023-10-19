@@ -11,6 +11,9 @@ let emptyArrayExpt = ExprSyntax(
 
 let publicModifier = DeclModifierSyntax(name: .keyword(.public))
 let privateModifier = DeclModifierSyntax(name: .keyword(.private))
+let fileprivateModifier = DeclModifierSyntax(name: .keyword(.fileprivate))
+let internalModifier = DeclModifierSyntax(name: .keyword(.internal))
+
 let finalModifier = DeclModifierSyntax(name: .keyword(.final))
 
 let anyFunctionCallExpr = ExprSyntax(
