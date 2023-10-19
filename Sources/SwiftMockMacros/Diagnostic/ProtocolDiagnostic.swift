@@ -28,20 +28,6 @@ extension Diagnostic {
 			let diagnostic = Diagnostic(node: modifier, message: DiagnosticMessage.filePrivate)
 			throw DiagnosticError(diagnostic: diagnostic)
 		}
-
-		// Start
-		// FIXME: add support for internal protocols
-		// They can be used using `@testable import`
-		if !declaration.modifiers.contains(where: { $0.name.text == publicModifier.name.text }) {
-			if let modifier = declaration.modifiers.first {
-				let diagnostic = Diagnostic(node: modifier, message: DiagnosticMessage.notAPublicProtocol)
-				throw DiagnosticError(diagnostic: diagnostic)
-			} else {
-				let diagnostic = Diagnostic(node: declaration.protocolKeyword, message: DiagnosticMessage.notAPublicProtocol)
-				throw DiagnosticError(diagnostic: diagnostic)
-			}
-		}
-		// End
 		
 		// TODO: support for attributes
 		if let attribute = declaration.attributes.first(where: { !$0.isMock }) {

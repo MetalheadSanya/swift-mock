@@ -2,7 +2,7 @@ import SwiftMock
 import XCTest
 
 @Mock
-public protocol ArgumentMatcherTestProtocol {
+protocol ArgumentMatcherTestProtocol {
 	func call(argument0: Int, argument1: Int?) -> Int
 }
 

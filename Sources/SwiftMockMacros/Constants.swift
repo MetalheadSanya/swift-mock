@@ -9,7 +9,6 @@ let emptyArrayExpt = ExprSyntax(
 	fromProtocol: ArrayExprSyntax(expressions: [])
 )
 
-let publicModifier = DeclModifierSyntax(name: .keyword(.public))
 let privateModifier = DeclModifierSyntax(name: .keyword(.private))
 let fileprivateModifier = DeclModifierSyntax(name: .keyword(.fileprivate))
 let internalModifier = DeclModifierSyntax(name: .keyword(.internal))

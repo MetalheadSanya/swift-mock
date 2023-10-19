@@ -3,7 +3,11 @@ import SwiftSyntaxBuilder
 
 extension MockMacro {
 	
-	static func makeVariableMock(from variableDecl: VariableDeclSyntax, mockTypeToken: TokenSyntax) throws -> [DeclSyntax] {
+	static func makeVariableMock(
+		from variableDecl: VariableDeclSyntax,
+		mockTypeToken: TokenSyntax,
+		isPublic: Bool
+	) throws -> [DeclSyntax] {
 		var declarations: [DeclSyntax] = []
 		for bindingSyntax in variableDecl.bindings {
 			guard let accessorBlock = bindingSyntax.accessorBlock else {
@@ -16,9 +20,9 @@ extension MockMacro {
 			}
 			for accessorDecl in accessorList {
 				declarations.append(makeInvocationContainerProperty(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
-				declarations.append(makeSignatureMethod(patternBinding: bindingSyntax, accessorDecl: accessorDecl))
+				declarations.append(makeSignatureMethod(patternBinding: bindingSyntax, accessorDecl: accessorDecl, isPublic: isPublic))
 			}
-			declarations.append(try makeMockProperty(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken))
+			declarations.append(try makeMockProperty(bindingSyntax: bindingSyntax, mockTypeToken: mockTypeToken, isPublic: isPublic))
 		}
 		return declarations
 	}
@@ -140,13 +144,14 @@ extension MockMacro {
 	
 	private static func makeSignatureMethod(
 		patternBinding: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
+		accessorDecl: AccessorDeclSyntax,
+		isPublic: Bool
 	) -> DeclSyntax {
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
-			return makeGetterSignatureMethod(from: patternBinding)
+			return makeGetterSignatureMethod(from: patternBinding, isPublic: isPublic)
 		case TokenSyntax.keyword(.set).text:
-			return makeSetterSignatureMethod(from: patternBinding)
+			return makeSetterSignatureMethod(from: patternBinding, isPublic: isPublic)
 		default:
 			fatalError("Unexpected accessor for property. Supported accessors: \"get\" and \"set\"")
 		}
@@ -154,13 +159,16 @@ extension MockMacro {
 	
 	// MARK: - Making the Getter Signature Method
 	
-	static func makeGetterSignatureMethod(from patternBinding: PatternBindingSyntax) -> DeclSyntax {
+	static func makeGetterSignatureMethod(
+		from patternBinding: PatternBindingSyntax,
+		isPublic: Bool
+	) -> DeclSyntax {
 		let returnType = getBindingType(from: patternBinding)
 		let containerToken = makeGetterInvocationContainerToken(from: patternBinding)
 		return DeclSyntax(
 			fromProtocol: FunctionDeclSyntax(
 				modifiers: DeclModifierListSyntax {
-					publicModifier
+					if isPublic { .public }
 				},
 				name: makeGetterSignatureMethodName(from: patternBinding),
 				signature: FunctionSignatureSyntax(
@@ -200,13 +208,16 @@ extension MockMacro {
 	
 	// MARK: - Making the Setter Signature Method
 	
-	static func makeSetterSignatureMethod(from patternBinding: PatternBindingSyntax) -> DeclSyntax {
+	static func makeSetterSignatureMethod(
+		from patternBinding: PatternBindingSyntax,
+		isPublic: Bool
+	) -> DeclSyntax {
 		let returnType = getBindingType(from: patternBinding)
 		let containerToken = makeSetterInvocationContainerToken(from: patternBinding)
 		return DeclSyntax(
 			fromProtocol: FunctionDeclSyntax(
 				modifiers: DeclModifierListSyntax {
-					publicModifier
+					if isPublic { .public }
 				},
 				name: makeSetterSignatureMethodName(from: patternBinding),
 				signature: FunctionSignatureSyntax(
@@ -256,7 +267,11 @@ extension MockMacro {
 	
 	// MARK: - Making the Mock Property
 	
-	static func makeMockProperty(bindingSyntax: PatternBindingSyntax, mockTypeToken: TokenSyntax) throws -> DeclSyntax {
+	static func makeMockProperty(
+		bindingSyntax: PatternBindingSyntax,
+		mockTypeToken: TokenSyntax,
+		isPublic: Bool
+	) throws -> DeclSyntax {
 		var accessorDeclListSyntax = try AccessorDeclListSyntax {
 			try AccessorDeclSyntax(
 				accessorSpecifier: .keyword(.get)
@@ -301,7 +316,7 @@ extension MockMacro {
 		return DeclSyntax(
 			fromProtocol: VariableDeclSyntax(
 				modifiers: DeclModifierListSyntax {
-					publicModifier
+					if isPublic { .public }
 				},
 				bindingSpecifier: .keyword(.var),
 				bindings: PatternBindingListSyntax {
