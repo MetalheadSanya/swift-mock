@@ -1,4 +1,5 @@
 import SwiftCompilerPlugin
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
@@ -9,48 +10,52 @@ public struct MockMacro: PeerMacro {
 		providingPeersOf declaration: some SwiftSyntax.DeclSyntaxProtocol,
 		in context: some SwiftSyntaxMacros.MacroExpansionContext
 	) throws -> [SwiftSyntax.DeclSyntax] {
-		guard let declaration = declaration.as(ProtocolDeclSyntax.self) else {
-			fatalError("Mock macro can be attached only to a protocol type")
-		}
-		guard declaration.modifiers.contains(where: { $0.name.text == TokenSyntax.keyword(.public).text }) else {
-			fatalError("Mock macro can be attached only to a public type")
-		}
-		
-		let mockTypeToken = TokenSyntax.identifier(declaration.name.text + "Mock")
-		
-		return [
-			DeclSyntax(
-				try ClassDeclSyntax(
-					modifiers: DeclModifierListSyntax {
-						DeclModifierSyntax(name: .keyword(.public))
-						DeclModifierSyntax(name: .keyword(.final))
-					},
-					name: mockTypeToken,
-					inheritanceClause: InheritanceClauseSyntax {
-						InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))
-						InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
-					}
-				) {
-					try makeVerifyType(declaration)
-					try makeVerifyCallStorageProperty()
-					for member in declaration.memberBlock.members {
-						if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
-							makeInvocationContainerProperty(funcDecl: funcDecl)
-							makeSignatureMethod(from: funcDecl)
-							funcDecl
-								.with(\.modifiers, DeclModifierListSyntax {
-									DeclModifierSyntax(name: .keyword(.public))
-								})
-								.with(\.body, try makeMockMethodBody(from: funcDecl, type: mockTypeToken))
-						} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
-							for decl in try makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
-								decl
+		do {
+			let declaration = try Diagnostic.extractProtocolDecl(declaration)
+			try Diagnostic.validateProtocolDecl(declaration)
+			
+			let mockTypeToken = TokenSyntax.identifier(declaration.name.text + "Mock")
+			
+			return [
+				DeclSyntax(
+					try ClassDeclSyntax(
+						modifiers: DeclModifierListSyntax {
+							// FIXME: add support for internal protocols
+							DeclModifierSyntax(name: .keyword(.public))
+							DeclModifierSyntax(name: .keyword(.final))
+						},
+						name: mockTypeToken,
+						inheritanceClause: InheritanceClauseSyntax {
+							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))
+							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
+						}
+					) {
+						try makeVerifyType(declaration)
+						try makeVerifyCallStorageProperty()
+						for member in declaration.memberBlock.members {
+							if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
+								makeInvocationContainerProperty(funcDecl: funcDecl)
+								makeSignatureMethod(from: funcDecl)
+								funcDecl
+									.with(\.modifiers, DeclModifierListSyntax {
+										DeclModifierSyntax(name: .keyword(.public))
+									})
+									.with(\.body, try makeMockMethodBody(from: funcDecl, type: mockTypeToken))
+							} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
+								for decl in try makeVariableMock(from: variableDecl, mockTypeToken: mockTypeToken) {
+									decl
+								}
 							}
 						}
 					}
-				}
-			)
-		]
+				)
+			]
+		} catch let error as DiagnosticError {
+			context.diagnose(error.diagnostic)
+			return []
+		} catch {
+			throw error
+		}
 	}
 	
 	private static func makeInvocationContainerProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {

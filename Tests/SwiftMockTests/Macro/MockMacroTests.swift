@@ -16,13 +16,13 @@ final class MockMacroTests: XCTestCase {
 		assertMacroExpansion(
 			"""
 			@Mock
-			public protocol Test { }
+			public protocol Test: AnyObject { }
 			""",
 			expandedSource: 
 			"""
-			public protocol Test { }
+			public protocol Test: AnyObject { }
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
