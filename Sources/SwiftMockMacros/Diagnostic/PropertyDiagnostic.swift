@@ -38,12 +38,6 @@ extension Diagnostic {
 						let diagnostic = Diagnostic(node: asyncSpecifier, message: DiagnosticMessage.asyncPropertiesIsNotSupported)
 						throw DiagnosticError(diagnostic: diagnostic)
 					}
-					if let throwsSpecifier = effectSpecifiers.throwsSpecifier {
-						let diagnostic = Diagnostic(node: throwsSpecifier, message: DiagnosticMessage.throwsPropertiesIsNotSupported)
-						throw DiagnosticError(diagnostic: diagnostic)
-					}
-					let diagnostic = Diagnostic(node: effectSpecifiers, message: DiagnosticMessage.unknownEffectSpecifierInPropertyDeclaration)
-					throw DiagnosticError(diagnostic: diagnostic)
 				}
 			}
 		}

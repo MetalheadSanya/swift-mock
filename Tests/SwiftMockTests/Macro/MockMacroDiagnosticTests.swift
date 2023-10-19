@@ -335,30 +335,4 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		throw XCTSkip("macros are only supported when running tests for the host platform")
 		#endif
 	}
-	
-	func testPropertyWithThrowsSpecifier() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			public protocol Test {
-				var test: Int { get throws }
-			}
-			""",
-			expandedSource:
-			"""
-			public protocol Test {
-				var test: Int { get throws }
-			}
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support throws properties", line: 3, column: 22)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
 }

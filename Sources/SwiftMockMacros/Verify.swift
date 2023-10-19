@@ -58,14 +58,6 @@ extension MockMacro {
 		} catch {
 			fatalError()
 		}
-		
-//		VariableDeclSyntax(
-//			.let,
-//			name: "container",
-//			type: TypeAnnotationSyntax(
-//				type: IdentifierTypeSyntax(name: .identifier("CallContainer"))
-//			)
-//		)
 	}
 	
 	private static func makeInit(protocolDecl: ProtocolDeclSyntax) -> InitializerDeclSyntax {

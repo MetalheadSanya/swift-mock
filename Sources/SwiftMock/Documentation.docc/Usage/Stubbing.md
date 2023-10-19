@@ -6,7 +6,7 @@ This article describes in detail the available possibilities of the stubbing met
 
 When we work with mocks we want to have some flexibility in our capabilities. Let's look at the package's capabilities.
 
-### Property Mocking
+### Property Stubbing
 
 Sometimes our services have not only methods, but also properties. For each property declared in the protocol, methods are generated for property stubbing. If a property is declared as read-only, then one stubbing method is generated in the form `$propertyNameGetter`, where `propertyName` is the name of the property. Stubbing using this method is similar to stubbing methods.
 
@@ -115,6 +115,31 @@ func test() {
 In this case, after retrieving the first two albums of the group when calling the `getAlbumName()` method, the method will throw an `endOfDiscography` error.
 
 In addition to this, we can see that we can combine ``ThrowsMethodInvocationBuilder/thenReturn(_:)-23hjy`` and ``ThrowsMethodInvocationBuilder/thenThrow(_:)`` in any order we need.
+
+``ThrowsMethodInvocationBuilder/thenThrow(_:)`` can be used not only for throws methods but throws properties.
+
+```swift 
+@Mock
+public protocol AlbumService {
+	var current: String { get throws }
+}
+
+public enum AlbumServiceError: Error {
+	case endOfDiscography
+}
+
+func test() {
+	let mock = AlbumServiceMock()
+
+	when(mock.$currentGetter())
+		.thenReturn("#4")
+		.thenReturn("Inspiration Is Dead")
+		.thenThrow(AlbumServiceError.endOfDiscography)
+		.thenReturn("#4")
+}
+```
+
+In this case, after retrieving the first two albums of the group when reading the `current` property, the property will throw an `endOfDiscography` error.
 
 ### Argument Matchers
 
