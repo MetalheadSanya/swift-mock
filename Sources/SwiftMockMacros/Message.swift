@@ -48,6 +48,9 @@ extension MockMacro {
 		if accessorDecl.accessorSpecifier.trimmed.text == TokenSyntax.keyword(.set).text {
 			literal += "="
 		}
+		if let asyncSpecifier = accessorDecl.effectSpecifiers?.asyncSpecifier {
+			literal += " " + asyncSpecifier.text
+		}
 		if let throwsSpecifier = accessorDecl.effectSpecifiers?.throwsSpecifier {
 			literal += " " + throwsSpecifier.text
 		}
