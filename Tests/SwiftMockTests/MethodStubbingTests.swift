@@ -42,6 +42,7 @@ protocol AsyncThrowsProtocol {
 protocol GenericMethodProtocol {
 	func oneParameter<T>(parameter: T) -> Int
 	func oneParameterAndReturn<T>(parameter: T) -> T
+	func inheritedType<T: Equatable>(parameter: T) -> T
 }
 
 final class MethodStubbingTests: XCTestCase {
@@ -206,6 +207,35 @@ final class MethodStubbingTests: XCTestCase {
 			.thenReturn(expectationTwo)
 		
 		let actualTwo = mock.oneParameterAndReturn(parameter: parameterTwo)
+		
+		XCTAssertEqual(actualTwo, expectationTwo)
+		
+		#if !os(Linux)
+		XCTExpectFailure {
+			_ = mock.oneParameterAndReturn(parameter: CustomError.unknown)
+		}
+		#endif
+	}
+	
+	func testGenericinheritedType() {
+		let mock = GenericMethodProtocolMock()
+		
+		let expectationOne = 6
+		
+		when(mock.$inheritedType(parameter: any(type: Int.self)))
+			.thenReturn(expectationOne)
+		
+		let actualOne = mock.inheritedType(parameter: 6)
+		
+		XCTAssertEqual(actualOne, expectationOne)
+		
+		let expectationTwo = "0"
+		let parameterTwo = "9"
+		
+		when(mock.$inheritedType(parameter: eq(parameterTwo)))
+			.thenReturn(expectationTwo)
+		
+		let actualTwo = mock.inheritedType(parameter: parameterTwo)
 		
 		XCTAssertEqual(actualTwo, expectationTwo)
 		

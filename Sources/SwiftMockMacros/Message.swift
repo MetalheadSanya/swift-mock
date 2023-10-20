@@ -18,7 +18,7 @@ extension MockMacro {
 		literal += funcDecl.name.text
 		if let genericParameterClause = funcDecl.genericParameterClause {
 			literal += "<"
-			literal += genericParameterClause.parameters.map(\.name.text).joined(separator: ",")
+			literal += genericParameterClause.parameters.map(\.text).joined(separator: ",")
 			literal += ">"
 		}
 		literal += "("

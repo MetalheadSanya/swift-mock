@@ -27,5 +27,10 @@ extension Diagnostic {
 				throw DiagnosticError(diagnostic: diagnostic)
 			}
 		}
+		
+		if let genericWhereClause = declaration.genericWhereClause {
+			let diagnostic = Diagnostic(node: genericWhereClause, message: DiagnosticMessage.genericWhereClauseIsNotSupported)
+			throw DiagnosticError(diagnostic: diagnostic)
+		}
 	}
 }

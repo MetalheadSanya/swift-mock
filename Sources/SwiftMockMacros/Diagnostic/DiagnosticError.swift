@@ -23,8 +23,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	case primaryAssociatedTypesIsNotSupported
 	case inheritanceIsNotSupported
 	
-	// TODO: support for generic parameters
-	case genericParametersIsNotSupported
+	// TODO: support for generic where clause
+	case genericWhereClauseIsNotSupported
 	// TODO: support for rethrows
 	case rethrowsIsNotSupported
 	// TODO: support for reasync
@@ -59,7 +59,7 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .inheritanceIsNotSupported:
 			return .error
 			
-		case .genericParametersIsNotSupported:
+		case .genericWhereClauseIsNotSupported:
 			return .error
 		case .rethrowsIsNotSupported:
 			return .error
@@ -99,8 +99,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .inheritanceIsNotSupported:
 			return "'@Mock' can only be applied to a non-inherited 'protocol'"
 			
-		case .genericParametersIsNotSupported:
-			return "'@Mock' doesn't support generic parameters"
+		case .genericWhereClauseIsNotSupported:
+			return "'@Mock' doesn't support generic where clause"
 		case .rethrowsIsNotSupported:
 			return "'@Mock' doesn't support rethrows methods"
 		case .reasyncIsNotSupported:
