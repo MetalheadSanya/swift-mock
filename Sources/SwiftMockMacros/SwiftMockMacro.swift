@@ -19,12 +19,14 @@ public struct MockMacro: PeerMacro {
 			return [
 				DeclSyntax(
 					try ClassDeclSyntax(
+						attributes: makeMockDeclAttributes(protocolDecl: declaration),
 						modifiers: DeclModifierListSyntax {
 							if declaration.isPublic { .public }
 							DeclModifierSyntax(name: .keyword(.final))
 						},
 						name: mockTypeToken,
 						inheritanceClause: InheritanceClauseSyntax {
+							if declaration.attributes.contains(where: { $0.isObjc }) { InheritedTypeSyntax(type: TypeSyntax.nsObject) }
 							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))
 							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
 						}

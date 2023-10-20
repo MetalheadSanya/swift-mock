@@ -17,8 +17,10 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	case filePrivate
 	// FIXME: add support for internal protocols
 	case notAPublicProtocol
-	// TODO: support for attributes
+	// TODO: #12 support for method attributes
 	case attributesIsNotSupported
+	// TODO: #32 Support for subscript
+	case dynamicMemberLookupIsNotSupported
 	// TODO: support primary associated types
 	case primaryAssociatedTypesIsNotSupported
 	case inheritanceIsNotSupported
@@ -53,6 +55,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .notAPublicProtocol:
 			return .error
 		case .attributesIsNotSupported:
+			return .error
+		case .dynamicMemberLookupIsNotSupported:
 			return .error
 		case .primaryAssociatedTypesIsNotSupported:
 			return .error
@@ -93,7 +97,9 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .notAPublicProtocol:
 			return "'@Mock' can only be applied to a 'public protocol'"
 		case .attributesIsNotSupported:
-			return "'@Mock' doesn't support attributes"
+			return "'@Mock' doesn't support method attributes"
+		case .dynamicMemberLookupIsNotSupported:
+			return "'@Mock' doesn't support '@dynamicMemberLookup' attribute"
 		case .primaryAssociatedTypesIsNotSupported:
 			return "'@Mock' cannot be applied to a 'protocol' with primary associated types"
 		case .inheritanceIsNotSupported:

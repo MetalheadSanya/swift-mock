@@ -16,6 +16,10 @@ extension TypeSyntax {
 		IdentifierTypeSyntax(name: .mock)
 	}
 	
+	static var nsObject: IdentifierTypeSyntax {
+		IdentifierTypeSyntax(name: .nsObject)
+	}
+	
 	var isAnyObject: Bool {
 		guard let self = self.as(IdentifierTypeSyntax.self) else {
 			return false
@@ -28,6 +32,20 @@ extension TypeSyntax {
 			return false
 		}
 		return self.name.isMock
+	}
+	
+	var isDynamicMemberLookup: Bool {
+		guard let self = self.as(IdentifierTypeSyntax.self) else {
+			return false
+		}
+		return self.name.trimmed.text == "dynamicMemberLookup"
+	}
+	
+	var isObjc: Bool {
+		guard let self = self.as(IdentifierTypeSyntax.self) else {
+			return false
+		}
+		return self.name.trimmed.text == TokenSyntax.keyword(.objc).text
 	}
 	
 	var text: String {

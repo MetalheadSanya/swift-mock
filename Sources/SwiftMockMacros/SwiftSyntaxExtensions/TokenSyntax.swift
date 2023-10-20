@@ -16,6 +16,10 @@ extension TokenSyntax {
 		.identifier("Mock")
 	}
 	
+	static var nsObject: TokenSyntax {
+		.identifier("NSObject")
+	}
+	
 	var isPublic: Bool {
 		trimmed.text == TokenSyntax.keyword(.public).text
 	}
