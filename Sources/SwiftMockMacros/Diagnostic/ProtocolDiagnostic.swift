@@ -29,9 +29,9 @@ extension Diagnostic {
 			throw DiagnosticError(diagnostic: diagnostic)
 		}
 		
-		// TODO: support for attributes
-		if let attribute = declaration.attributes.first(where: { !$0.isMock }) {
-			let diagnostic = Diagnostic(node: attribute, message: DiagnosticMessage.attributesIsNotSupported)
+		// TODO: #32 support for subscript
+		if let attribute = declaration.attributes.first(where: { $0.isDynamicMemberLookup }) {
+			let diagnostic = Diagnostic(node: attribute, message: DiagnosticMessage.dynamicMemberLookupIsNotSupported)
 			throw DiagnosticError(diagnostic: diagnostic)
 		}
 		
@@ -54,17 +54,6 @@ extension Diagnostic {
 			} else if let variableDeclaration = member.decl.as(VariableDeclSyntax.self) {
 				try Diagnostic.validatePropertyDeclaration(variableDeclaration)
 			}
-		}
-	}
-}
-
-private extension AttributeListSyntax.Element {
-	var isMock: Bool {
-		switch self {
-		case .attribute(let attribute):
-			return attribute.attributeName.isMock
-		case .ifConfigDecl:
-			return false
 		}
 	}
 }
