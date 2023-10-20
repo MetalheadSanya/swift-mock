@@ -186,17 +186,17 @@ final class MockMacroDiagnosticTests: XCTestCase {
 			"""
 			@Mock
 			public protocol Test {
-				func call<T>(_: T)
+				func call<T>(_: T) where T: Equitable
 			}
 			""",
 			expandedSource:
 			"""
 			public protocol Test {
-				func call<T>(_: T)
+				func call<T>(_: T) where T: Equitable
 			}
 			""",
 			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support generic parameters", line: 3, column: 11)
+				DiagnosticSpec(message: "'@Mock' doesn't support generic where clause", line: 3, column: 21)
 			],
 			macros: testMacros,
 			indentationWidth: .tab

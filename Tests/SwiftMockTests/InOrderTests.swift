@@ -98,6 +98,34 @@ final class InOrderTests: XCTestCase {
 		
 		inOrder.verify(mock0, times: times(2)).call()
 		inOrder.verify(mock0).call0()
+	}
+	
+	func testGenericWithOneArgmuent() throws {
+		let mock = GenericMethodProtocolMock()
+		
+		when(mock.$oneParameter(parameter: any(type: Int.self)))
+			.thenReturn(6)
+		when(mock.$oneParameter(parameter: any(type: String.self)))
+			.thenReturn(6)
+		
+		_ = mock.oneParameter(parameter: 6)
+		_ = mock.oneParameter(parameter: "6")
+		
+		let inOrder = inOrder(mock)
+		
+		inOrder.verify(mock).oneParameter(parameter: any(type: Int.self))
+		inOrder.verify(mock).oneParameter(parameter: any(type: String.self))
+		
+		#if !os(Linux)
+		_ = mock.oneParameter(parameter: 6)
+		_ = mock.oneParameter(parameter: "6")
+		
+		XCTExpectFailure {
+			inOrder.verify(mock).oneParameter(parameter: any(type: String.self))
+			inOrder.verify(mock).oneParameter(parameter: any(type: Int.self))
+		}
+		
+		#endif
 		
 	}
 }

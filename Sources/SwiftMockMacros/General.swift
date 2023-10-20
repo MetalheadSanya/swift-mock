@@ -183,6 +183,50 @@ extension MockMacro {
 		)
 	}
 	
+	// MARK: - MethodInvocationContainer
+	
+	static func makeMethodInvocationContainerType(
+		isAsync: Bool,
+		isThrows: Bool
+	) -> TypeSyntax {
+		let token = makeTokenWithPrefix(
+			isAsync: isAsync,
+			isThrows: isThrows,
+			token: .identifier("MethodInvocationContainer")
+		)
+		return TypeSyntax(
+			IdentifierTypeSyntax(name: token)
+		)
+	}
+	
+	static func makeMethodInvocationContainerTypeExpr(
+		isAsync: Bool,
+		isThrows: Bool
+	) -> TypeExprSyntax {
+		TypeExprSyntax(
+			type: makeMethodInvocationContainerType(
+				isAsync: isAsync,
+				isThrows: isThrows
+			)
+		)
+	}
+	
+	static func makeMethodInvocationContainerInitializerClause(
+		isAsync: Bool,
+		isThrows: Bool
+	) -> InitializerClauseSyntax {
+		InitializerClauseSyntax(
+			value: FunctionCallExprSyntax(
+				calledExpression: makeMethodInvocationContainerTypeExpr(
+					isAsync: isAsync,
+					isThrows: isThrows
+				),
+				leftParen: .leftParenToken(),
+				rightParen: .rightParenToken()
+			) { }
+		)
+	}
+	
 	// MARK: - ArgumentMatcher
 	
 	static func wrapToEscapingType(type: TypeSyntax) -> TypeSyntax {

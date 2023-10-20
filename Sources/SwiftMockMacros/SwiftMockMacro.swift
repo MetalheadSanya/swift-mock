@@ -58,18 +58,18 @@ public struct MockMacro: PeerMacro {
 	}
 	
 	private static func makeInvocationContainerProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {
-		let prefix = makeTypePrefix(funcDecl: funcDecl)
-		let invocationType = TokenSyntax.identifier(prefix + "MethodInvocation")
 		return VariableDeclSyntax(
 			modifiers: DeclModifierListSyntax {
 				DeclModifierSyntax(name: .keyword(.private))
 			},
-			bindingSpecifier: .keyword(.var),
+			bindingSpecifier: .keyword(.let),
 			bindings: PatternBindingListSyntax {
 				PatternBindingSyntax(
 					pattern: IdentifierPatternSyntax(identifier: makeInvocationContainerName(from: funcDecl)),
-					typeAnnotation: TypeAnnotationSyntax(type: ArrayTypeSyntax(element: makeGenericType(invocationType, from: funcDecl))),
-					initializer: InitializerClauseSyntax(value: ArrayExprSyntax(expressions: []))
+					initializer: makeMethodInvocationContainerInitializerClause(
+						isAsync: funcDecl.isAsync,
+						isThrows: funcDecl.isThrows
+					)
 				)
 			}
 		)
@@ -133,22 +133,17 @@ public struct MockMacro: PeerMacro {
 	}
 	
 	private static func makeMockMethodBody(from funcDecl: FunctionDeclSyntax, type: TokenSyntax) throws -> CodeBlockSyntax {
-		let prefix = makeTypePrefix(funcDecl: funcDecl)
-		let invocationType = TokenSyntax.identifier(prefix + "MethodInvocation")
 		let argumentsExpression = packParametersToTupleExpr(funcDecl.signature.parameterClause.parameters)
 		let funcSignatureString = try makeFunctionSignatureString(funcDecl: funcDecl)
+		let invocationContainerToken = makeInvocationContainerName(from: funcDecl)
 		let functionCallExpr = FunctionCallExprSyntax(
 			calledExpression: MemberAccessExprSyntax(
-				base: DeclReferenceExprSyntax(baseName: invocationType),
+				base: DeclReferenceExprSyntax(baseName: invocationContainerToken),
 				declName: DeclReferenceExprSyntax(baseName: .identifier("find"))
 			),
 			leftParen: .leftParenToken(),
 			rightParen: .rightParenToken()
 		) {
-			LabeledExprSyntax(
-				label: "in",
-				expression: DeclReferenceExprSyntax(baseName: makeInvocationContainerName(from: funcDecl))
-			)
 			LabeledExprSyntax(
 				label: "with",
 				expression: DeclReferenceExprSyntax(baseName: .identifier("arguments"))

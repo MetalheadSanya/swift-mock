@@ -42,7 +42,7 @@ extension MockMacro {
 				modifiers: DeclModifierListSyntax {
 					privateModifier
 				},
-				bindingSpecifier: .keyword(.var),
+				bindingSpecifier: .keyword(.let),
 				bindings: bindings
 			)
 		)
@@ -52,118 +52,52 @@ extension MockMacro {
 		patternBinding: PatternBindingSyntax,
 		accessorDecl: AccessorDeclSyntax
 	) -> PatternBindingListSyntax {
-		switch accessorDecl.accessorSpecifier.trimmed.text {
-		case TokenSyntax.keyword(.get).text:
-			return PatternBindingListSyntax {
-				makeGetterPatterBinding(
-					bindingSyntax: patternBinding,
-					accessorDecl: accessorDecl
-				)
-			}
-		case TokenSyntax.keyword(.set).text:
-			return PatternBindingListSyntax {
-				makeSetterPatterBinding(from: patternBinding)
-			}
-		default:
+		PatternBindingListSyntax {
+			makeInvocationContainerPatterBindingSyntax(bindingSyntax: patternBinding, accessorDecl: accessorDecl)
+		}
+	}
+	
+	private static func makeInvocationContainerPatterBindingSyntax(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> PatternBindingSyntax {
+		PatternBindingSyntax(
+			pattern: makeInvocationContainerPattern(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl),
+			initializer: makeInvocationContainerInitializerClause(accessorDecl: accessorDecl)
+		)
+	}
+	
+	private static func makeInvocationContainerPattern(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> PatternSyntax {
+		let token = makeInvocationContainerToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
+		return PatternSyntax(
+			IdentifierPatternSyntax(identifier: token)
+		)
+	}
+	
+	
+	private static func makeInvocationContainerToken(
+		bindingSyntax: PatternBindingSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) -> TokenSyntax {
+		let propertyPattern = bindingSyntax.pattern.as(IdentifierPatternSyntax.self) ?? IdentifierPatternSyntax(identifier: .identifier("unknown"))
+		if accessorDecl.isGet {
+			return .identifier(propertyPattern.identifier.text + "___getter")
+		} else if accessorDecl.isSet {
+			return .identifier(propertyPattern.identifier.text + "___setter")
+		} else {
 			fatalError("Unexpected accessor for property. Supported accessors: \"get\" and \"set\"")
 		}
 	}
 	
-	private static func makeInvocationContainerInitializerClause() -> InitializerClauseSyntax {
-		InitializerClauseSyntax(value: emptyArrayExpt)
-	}
-	
-	// MARK: - Make Getter Invocation Container
-	
-	private static func makeGetterPatterBinding(
-		bindingSyntax binding: PatternBindingSyntax,
+	private static func makeInvocationContainerInitializerClause(
 		accessorDecl: AccessorDeclSyntax
-	) -> PatternBindingSyntax {
-		PatternBindingSyntax(
-			pattern: makeGetterInvocationContainerPattern(from: binding),
-			typeAnnotation: makeGetterInvocationContainerTypeAnnotation(
-				bindingSyntax: binding,
-				accessorDecl: accessorDecl
-			),
-			initializer: makeInvocationContainerInitializerClause()
-		)
-	}
-	
-	private static func makeGetterInvocationContainerPattern(
-		from bindingSyntax: PatternBindingSyntax
-	) -> PatternSyntax {
-		let token = makeGetterInvocationContainerToken(from: bindingSyntax)
-		return PatternSyntax(
-			IdentifierPatternSyntax(identifier: token)
-		)
-	}
-	
-	static func makeGetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
-		let propertyPattern = bindingSyntax.pattern.as(IdentifierPatternSyntax.self) ?? IdentifierPatternSyntax(identifier: .identifier("unknown"))
-		return .identifier(propertyPattern.identifier.text + "___getter")
-	}
-	
-	private static func makeGetterInvocationContainerTypeAnnotation(
-		bindingSyntax: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
-	) -> TypeAnnotationSyntax {
-		TypeAnnotationSyntax(
-			type: makeGetterInvocationContainerType(
-				bindingSyntax: bindingSyntax,
-				accessorDecl: accessorDecl
-			)
-		)
-	}
-	
-	private static func makeGetterInvocationContainerType(
-		bindingSyntax: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
-	) -> TypeSyntax {
-		let returnType = getBindingType(from: bindingSyntax)
-		return TypeSyntax(
-			fromProtocol: ArrayTypeSyntax(
-				element: makeMethodInvocationType(
-					isAsync: accessorDecl.isAsync,
-					isThrows: accessorDecl.isThrows,
-					returnType: returnType
-				)
-			)
-		)
-		
-	}
-	
-	// MARK: - Make Setter Invocation Container
-	
-	private static func makeSetterPatterBinding(from binding: PatternBindingSyntax) -> PatternBindingSyntax {
-		PatternBindingSyntax(
-			pattern: makeSetterInvocationContainerPattern(from: binding),
-			typeAnnotation: makeSetterInvocationContainerTypeAnnotation(from: binding),
-			initializer: makeInvocationContainerInitializerClause()
-		)
-	}
-	
-	private static func makeSetterInvocationContainerPattern(from bindingSyntax: PatternBindingSyntax) -> PatternSyntax {
-		let token = makeSetterInvocationContainerToken(from: bindingSyntax)
-		return PatternSyntax(
-			IdentifierPatternSyntax(identifier: token)
-		)
-	}
-	
-	static func makeSetterInvocationContainerToken(from bindingSyntax: PatternBindingSyntax) -> TokenSyntax {
-		let propertyPattern = bindingSyntax.pattern.as(IdentifierPatternSyntax.self) ?? IdentifierPatternSyntax(identifier: .identifier("unknown"))
-		return .identifier(propertyPattern.identifier.text + "___setter")
-	}
-	
-	private static func makeSetterInvocationContainerTypeAnnotation(from bindingSyntax: PatternBindingSyntax) -> TypeAnnotationSyntax {
-		TypeAnnotationSyntax(type: makeSetterInvocationContainerType(from: bindingSyntax))
-	}
-	
-	private static func makeSetterInvocationContainerType(from bindingSyntax: PatternBindingSyntax) -> TypeSyntax {
-		let returnType = getBindingType(from: bindingSyntax)
-		return TypeSyntax(
-			fromProtocol: ArrayTypeSyntax(
-				element: makeMethodInvocationType(arguments: [returnType])
-			)
+	) -> InitializerClauseSyntax {
+		makeMethodInvocationContainerInitializerClause(
+			isAsync: accessorDecl.isAsync,
+			isThrows: accessorDecl.isThrows
 		)
 	}
 	
@@ -196,7 +130,7 @@ extension MockMacro {
 		isPublic: Bool
 	) -> DeclSyntax {
 		let returnType = getBindingType(from: patternBinding)
-		let containerToken = makeGetterInvocationContainerToken(from: patternBinding)
+		let containerToken = makeInvocationContainerToken(bindingSyntax: patternBinding, accessorDecl: accessorDecl)
 		return DeclSyntax(
 			fromProtocol: FunctionDeclSyntax(
 				modifiers: DeclModifierListSyntax {
@@ -259,7 +193,7 @@ extension MockMacro {
 		isPublic: Bool
 	) -> DeclSyntax {
 		let returnType = getBindingType(from: patternBinding)
-		let containerToken = makeSetterInvocationContainerToken(from: patternBinding)
+		let containerToken = makeInvocationContainerToken(bindingSyntax: patternBinding, accessorDecl: "set")
 		return DeclSyntax(
 			fromProtocol: FunctionDeclSyntax(
 				modifiers: DeclModifierListSyntax {
@@ -427,25 +361,17 @@ extension MockMacro {
 		accessorDecl: AccessorDeclSyntax,
 		mockTypeToken: TokenSyntax
 	) throws -> ExprSyntax {
-		let invocationType = makeTokenWithPrefix(
-			isAsync: accessorDecl.isAsync,
-			isThrows: accessorDecl.isThrows,
-			token: .identifier("MethodInvocation")
-		)
 		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
+		let containerToken = makeInvocationContainerToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		return ExprSyntax(
 			fromProtocol: FunctionCallExprSyntax(
 				calledExpression: MemberAccessExprSyntax(
-					base: DeclReferenceExprSyntax(baseName: invocationType),
+					base: DeclReferenceExprSyntax(baseName: containerToken),
 					declName: DeclReferenceExprSyntax(baseName: .identifier("find"))
 				),
 				leftParen: .leftParenToken(),
 				rightParen: .rightParenToken()
 			) {
-				LabeledExprSyntax(
-					label: "in",
-					expression: DeclReferenceExprSyntax(baseName: makeGetterInvocationContainerToken(from: bindingSyntax))
-				)
 				LabeledExprSyntax(
 					label: "with",
 					expression: DeclReferenceExprSyntax(baseName: .identifier("arguments"))
@@ -467,21 +393,17 @@ extension MockMacro {
 		accessorDecl: AccessorDeclSyntax,
 		mockTypeToken: TokenSyntax
 	) throws -> ExprSyntax {
-		let invocationType = TokenSyntax.identifier("MethodInvocation")
+		let containerToken = makeInvocationContainerToken(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		let propertySignatureString = try makePropertySignatureString(bindingSyntax: bindingSyntax, accessorDecl: accessorDecl)
 		return ExprSyntax(
 			fromProtocol: FunctionCallExprSyntax(
 				calledExpression: MemberAccessExprSyntax(
-					base: DeclReferenceExprSyntax(baseName: invocationType),
+					base: DeclReferenceExprSyntax(baseName: containerToken),
 					declName: DeclReferenceExprSyntax(baseName: .identifier("find"))
 				),
 				leftParen: .leftParenToken(),
 				rightParen: .rightParenToken()
 			) {
-				LabeledExprSyntax(
-					label: "in",
-					expression: DeclReferenceExprSyntax(baseName: makeSetterInvocationContainerToken(from: bindingSyntax))
-				)
 				LabeledExprSyntax(
 					label: "with",
 					expression: DeclReferenceExprSyntax(baseName: .identifier("arguments"))

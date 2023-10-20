@@ -3,7 +3,7 @@
 //#endif
 
 public final class MethodInvocation<Arguments, Result> {
-	private let match: ArgumentMatcher<Arguments>
+	let match: ArgumentMatcher<Arguments>
 	private var evaluations: [(Arguments) -> Result]
 	private var current = 0
 	
@@ -27,20 +27,5 @@ public final class MethodInvocation<Arguments, Result> {
 		}
 		let evaluation = evaluations[current]
 		return evaluation(arguments)
-	}
-	
-	public static func find(
-		in container: [MethodInvocation<Arguments, Result>],
-		with arguments: Arguments,
-		type: String,
-		function: String
-	) -> Result {
-		guard let invocation = container.last(where: { invocation in
-			invocation.match(arguments)
-		}) else {
-			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)")
-			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
-		}
-		return invocation.eval(arguments)
 	}
 }
