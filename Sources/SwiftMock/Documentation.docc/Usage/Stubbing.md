@@ -252,3 +252,25 @@ func test() async throws {
 	// All calls of getAlbum() will return "I'mperfect" album.
 }
 ```
+
+### Generic Method Stubbing
+
+Due to the specifics of the resolution of generic types, it is impossible to use ``any()`` as an `ArgumentMatcher`. In order to indicate which type to stab the method with, you must use the ``any(type:)`` function.
+
+```swift 
+@Mock
+public protocol SomeProtocol {
+	func setData<T>(_ data: T)
+}
+
+func test() async throws {
+	let mock = SomeProtocolMock()
+
+	when(mock.$setData(any(type: Int.self))
+		.thenReturn()
+
+	mock.setData(6)
+}
+```
+
+> Note: If you use the ``any(type:)`` function, the resulting stub will only process calls with the appropriate type. If the method is called with an argument of a different type, you will receive an error message that the call was not found.
