@@ -139,7 +139,6 @@ final class MockMacroAttributeTests: XCTestCase {
 		#endif
 	}
 	
-	// TODO: #32 Support for subscript
 	func testDynamicMemberLookupCallable() throws {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(
@@ -156,10 +155,39 @@ final class MockMacroAttributeTests: XCTestCase {
 			protocol SomeProtocol {
 				subscript(dynamicMember member: String) -> Int { get }
 			}
+			
+			@dynamicMemberLookup final class SomeProtocolMock: SomeProtocol , Verifiable {
+				struct Verify: MockVerify {
+					let mock: SomeProtocolMock
+					let container: CallContainer
+					let times: TimesMatcher
+					init(mock: SomeProtocolMock, container: CallContainer, times: @escaping TimesMatcher) {
+						self.mock = mock
+						self.container = container
+						self.times = times
+					}
+					func subscriptGetter(dynamicMember member: @escaping ArgumentMatcher<String> = any()) {
+						let argumentMatcher0 = member
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "SomeProtocolMock", function: "subscript(dynamicMember member: String) -> Int { get }")
+					}
+				}
+				let container = VerifyContainer()
+				private let subscript_dynamicMember_member__String_____Int___getter = MethodInvocationContainer()
+				func $subscriptGetter(dynamicMember member: @escaping ArgumentMatcher<String> = any()) -> MethodSignature<(String), Int> {
+					let argumentMatcher0 = member
+					return MethodSignature<(String), Int>(argumentMatcher: argumentMatcher0, register: {
+							self.subscript_dynamicMember_member__String_____Int___getter.append($0)
+						})
+				}
+					subscript(dynamicMember member: String) -> Int {
+					get {
+						let arguments = (member)
+						container.append(mock: self, call: MethodCall(arguments: arguments), function: "subscript(dynamicMember member: String) -> Int { get }")
+						return subscript_dynamicMember_member__String_____Int___getter.find(with: arguments, type: "SomeProtocolMock", function: "subscript(dynamicMember member: String) -> Int { get }")
+					}
+				}
+			}
 			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support '@dynamicMemberLookup' attribute", line: 2, column: 1)
-			],
 			macros: testMacros,
 			indentationWidth: .tab
 		)

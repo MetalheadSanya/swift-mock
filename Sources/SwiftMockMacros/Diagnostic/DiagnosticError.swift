@@ -15,12 +15,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	case notAProtocol
 	case `private`
 	case filePrivate
-	// FIXME: add support for internal protocols
-	case notAPublicProtocol
 	// TODO: #12 support for method attributes
 	case attributesIsNotSupported
-	// TODO: #32 Support for subscript
-	case dynamicMemberLookupIsNotSupported
 	// TODO: support primary associated types
 	case primaryAssociatedTypesIsNotSupported
 	case inheritanceIsNotSupported
@@ -44,6 +40,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	
 	case unknownEffectSpecifierInPropertyDeclaration
 	
+	case subscriptAccessorMustBeGetOrSet
+	
 	var severity: DiagnosticSeverity {
 		switch self {
 		case .notAProtocol:
@@ -52,11 +50,7 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return .error
 		case .filePrivate:
 			return .error
-		case .notAPublicProtocol:
-			return .error
 		case .attributesIsNotSupported:
-			return .error
-		case .dynamicMemberLookupIsNotSupported:
 			return .error
 		case .primaryAssociatedTypesIsNotSupported:
 			return .error
@@ -83,6 +77,9 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return .error
 		case .unknownEffectSpecifierInPropertyDeclaration:
 			return .error
+			
+		case .subscriptAccessorMustBeGetOrSet:
+			return .error
 		}
 	}
 	
@@ -94,12 +91,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return "'@Mock' cannot be applied to a 'private protocol'"
 		case .filePrivate:
 			return "'@Mock' cannot be applied to a 'fileprivate protocol'"
-		case .notAPublicProtocol:
-			return "'@Mock' can only be applied to a 'public protocol'"
 		case .attributesIsNotSupported:
 			return "'@Mock' doesn't support method attributes"
-		case .dynamicMemberLookupIsNotSupported:
-			return "'@Mock' doesn't support '@dynamicMemberLookup' attribute"
 		case .primaryAssociatedTypesIsNotSupported:
 			return "'@Mock' cannot be applied to a 'protocol' with primary associated types"
 		case .inheritanceIsNotSupported:
@@ -126,6 +119,9 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return "'@Mock' doesn't support throws properties"
 		case .unknownEffectSpecifierInPropertyDeclaration:
 			return "'@Mock' found unknown effect specifier in property declaration, please report in issue in GitHub"
+			
+		case .subscriptAccessorMustBeGetOrSet:
+			return "Subscript in protocol must have explicit { get } or { get set } specifier"
 		}
 	}
 	

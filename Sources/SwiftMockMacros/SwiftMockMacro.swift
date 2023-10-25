@@ -34,7 +34,11 @@ public struct MockMacro: PeerMacro {
 						try makeVerifyType(declaration)
 						try makeVerifyCallStorageProperty(isPublic: declaration.isPublic)
 						for member in declaration.memberBlock.members {
-							if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
+							if let subscriptDecl = member.decl.as(SubscriptDeclSyntax.self) {
+								for decl in try makeSubscriptMock(subscriptDecl: subscriptDecl, mockTypeToken: mockTypeToken, isPublic: declaration.isPublic) {
+									decl
+								}
+							} else if let funcDecl = member.decl.as(FunctionDeclSyntax.self) {
 								makeInvocationContainerProperty(funcDecl: funcDecl)
 								makeSignatureMethod(from: funcDecl, isPublic: declaration.isPublic)
 								funcDecl
@@ -216,7 +220,7 @@ public struct MockMacro: PeerMacro {
 		)
 	}
 	
-	private static func wrapToArgumentMatcher(_ parameter: FunctionParameterSyntax) -> FunctionParameterSyntax {
+	static func wrapToArgumentMatcher(_ parameter: FunctionParameterSyntax) -> FunctionParameterSyntax {
 		parameter
 			.with(\.type, TypeSyntax(
 				AttributedTypeSyntax(
@@ -282,7 +286,7 @@ public struct MockMacro: PeerMacro {
 		}
 	}
 	
-	private static func packParametersToTupleExpr<T: BidirectionalCollection>(
+	static func packParametersToTupleExpr<T: BidirectionalCollection>(
 		_ parameterList: T
 	) -> TupleExprSyntax where T.Element == FunctionParameterSyntax  {
 		if parameterList.count <= 1 {

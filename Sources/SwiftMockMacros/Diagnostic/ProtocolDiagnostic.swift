@@ -29,12 +29,6 @@ extension Diagnostic {
 			throw DiagnosticError(diagnostic: diagnostic)
 		}
 		
-		// TODO: #32 support for subscript
-		if let attribute = declaration.attributes.first(where: { $0.isDynamicMemberLookup }) {
-			let diagnostic = Diagnostic(node: attribute, message: DiagnosticMessage.dynamicMemberLookupIsNotSupported)
-			throw DiagnosticError(diagnostic: diagnostic)
-		}
-		
 		// TODO: support for primary associated types
 		if let primaryAssociatedTypeClause = declaration.primaryAssociatedTypeClause {
 			let diagnostic = Diagnostic(node: primaryAssociatedTypeClause, message: DiagnosticMessage.primaryAssociatedTypesIsNotSupported)
