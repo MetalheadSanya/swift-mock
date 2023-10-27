@@ -85,6 +85,51 @@ func test() {
 }
 ```
 
+### Checking that subscript was read
+
+To verify that the mock subscript has been read, use the ``verify(_:times:)`` method and pass the mock object as the first argument. This method will create a `Verify` structure for you that has a method to verify that your subscript has been read. The name of the method is `subscriptGetter()`. All rules regarding method call verification work similarly for subscript.
+
+```swift
+@Mock
+protocol SubscriptProtocol {
+	subscript(_ value: Int) -> String  { get set }
+}
+
+func test() {
+	let mock = SubscriptProtocolMock()
+
+	when(mock.$subscriptGetter(eq(6)))
+		.thenReturn("4")
+
+	_ = mock[6]
+
+	verify(mock).subscriptGetter()
+}
+```
+
+### Checking that subscript was write
+
+To verify that the mock subscript has been write, use the ``verify(_:times:)`` method and pass the mock object as the first argument. This method will create a `Verify` structure for you that has a method to verify that your property has been write. The name of the method is `subscriptSetter`. All rules regarding method call verification work similarly for subscripts. Additionally, you can pass any `AttributeMatcher` to the `subscriptSetter` method as `newValue` arfument to check that a certain value has been set to the subscript.
+
+```swift 
+@Mock
+protocol SubscriptProtocol {
+	subscript(_ value: Int) -> String  { get set }
+}
+
+
+func test() {
+	let mock = SubscriptProtocolMock()
+
+	when(mock.$subscriptSetter())
+		.thenReturn()
+
+	mock[6] = "7"
+
+	verify(mock).subscriptGetter(eq(6), newValue: eq("7"))
+}
+```
+
 ### Checking that method was called with specific arguments
 
 The methods of a `Verify` structure have all the same methods as your protocol with one exception. All method arguments are replaced with a wrapper in the form of `ArgumentMatcher`. As with stubbing, the default argument value is ``any()``. If you want to check that a method was called with a certain argument, then you need to specify the appropriate `ArgumentMatcher` for the arguments you want to check.

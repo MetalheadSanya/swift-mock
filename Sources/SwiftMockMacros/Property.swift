@@ -124,7 +124,7 @@ extension MockMacro {
 	
 	// MARK: - Making the Getter Signature Method
 	
-	static func makeGetterSignatureMethod(
+	private static func makeGetterSignatureMethod(
 		patternBinding: PatternBindingSyntax,
 		accessorDecl: AccessorDeclSyntax,
 		isPublic: Bool

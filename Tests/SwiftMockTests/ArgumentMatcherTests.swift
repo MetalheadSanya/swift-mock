@@ -14,6 +14,11 @@ final class ArgumentMatcherTests: XCTestCase {
 		}
 	}
 	
+	override func tearDown() {
+		cleanUpMock()
+		super.tearDown()
+	}
+	
 	func testAny() {
 		let mock = ArgumentMatcherTestProtocolMock()
 		

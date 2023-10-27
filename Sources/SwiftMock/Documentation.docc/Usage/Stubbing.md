@@ -65,6 +65,42 @@ func test() {
 }
 ```
 
+### Subscript Stubbing
+
+Similar to property stubbing, the framework allows you to stub a subscript. In order to stub the getter, the mock has a method called `$subscriptGetter`. It takes `ArgumentMatcher`s as arguments in a number similar to the number of subscript arguments.
+
+```swift
+@Mock
+protocol SubscriptProtocol {
+	subscript(_ value: Int) -> String  { get set }
+}
+
+func test() {
+	let mock = SubscriptProtocolMock()
+
+	when(mock.$subscriptGetter(eq(6)))
+		.thenReturn("4")
+}
+```
+
+Setter stubbing works in a similar way. Unlike a getter, the name of the stub method is `$subscriptSetter` and the number of arguments is one more than that of the original method. This argument, named `newValue`, is the value you set in the subscript.
+
+```swift
+@Mock
+protocol SubscriptProtocol {
+	subscript(_ value: Int) -> String  { get set }
+}
+
+func test() {
+	let mock = SubscriptProtocolMock()
+
+	when(mock.$subscriptSetter(eq(5), newValue: any())
+		.thenReturn()
+}
+```
+
+You can drop any `ArgumentMatcher` into a non-generic subscript in the same way as when stubbing methods and properties.
+
 ### Calling Methods Sequentially
 
 In some flows, the methods of our mocks may be called several times and we do not always want to receive the same return value. To do this, we can use the builder's call chain.

@@ -61,4 +61,10 @@ extension MockMacro {
 		}
 		return literal
 	}
+	
+	static func makeSubscriptSignatureString(
+		subscriptDecl: SubscriptDeclSyntax
+	) -> String {
+		String(subscriptDecl.trimmed.syntaxTextBytes.map { Unicode.Scalar($0) }.map { Character($0) })
+	}
 }

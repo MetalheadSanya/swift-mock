@@ -1,3 +1,4 @@
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxBuilder
 
@@ -21,6 +22,10 @@ extension MockMacro {
 					try makeVerifyMethod(protocolDecl: protocolDecl, funcDecl: funcDecl)
 				} else if let variableDecl = member.decl.as(VariableDeclSyntax.self) {
 					for decl in try makeVerifyProperty(protocolDecl: protocolDecl, variableDecl: variableDecl) {
+						decl
+					}
+				} else if let subscriptDecl = member.decl.as(SubscriptDeclSyntax.self) {
+					for decl in try makeVerifySubscript(protocolDecl: protocolDecl, subscriptDecl: subscriptDecl) {
 						decl
 					}
 				}
@@ -196,6 +201,96 @@ extension MockMacro {
 		}
 	}
 	
+	// MARK: - Verify Method for Subscript
+
+	private static func makeVerifySubscript(protocolDecl: ProtocolDeclSyntax, subscriptDecl: SubscriptDeclSyntax) throws -> [DeclSyntax] {
+		var declarations: [DeclSyntax] = []
+		guard let accessorBlock = subscriptDecl.accessorBlock else {
+			let diagnostic = Diagnostic(node: subscriptDecl, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
+			throw DiagnosticError(diagnostic: diagnostic)
+		}
+		guard case let .`accessors`(accessorList) = accessorBlock.accessors else {
+			let diagnostic = Diagnostic(node: accessorBlock, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
+			throw DiagnosticError(diagnostic: diagnostic)
+		}
+		for accessorDecl in accessorList {
+			let funcSignatureString = makeSubscriptSignatureString(subscriptDecl: subscriptDecl)
+			let decl = DeclSyntax(
+				fromProtocol: FunctionDeclSyntax(
+					modifiers: DeclModifierListSyntax {
+						if protocolDecl.isPublic { .public }
+					},
+					name: try makeVerifyPropertyToken(subscriptDecl: subscriptDecl, accessorDecl: accessorDecl),
+					genericParameterClause: subscriptDecl.genericParameterClause,
+					signature: try makeVerifyPropertyFunctionSignature(subscriptDecl: subscriptDecl, accessorDecl: accessorDecl),
+					body: makeVerifyBody(
+						arguments: try makeArgumentList(subscriptDecl: subscriptDecl, accessorDecl: accessorDecl),
+						mockTypeToken: makeMockTypeToken(protocolDecl),
+						funcSignatureExpr: ExprSyntax(literal: funcSignatureString)
+					)
+				)
+			)
+			declarations.append(decl)
+		}
+		
+		return declarations
+	}
+	
+	private static func makeVerifyPropertyToken(
+		subscriptDecl: SubscriptDeclSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) throws -> TokenSyntax {
+		var text = "subscript"
+		if accessorDecl.isGet {
+			text += "Getter"
+		} else if accessorDecl.isSet {
+			text += "Setter"
+		} else {
+			let diagnostic = Diagnostic(node: accessorDecl, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
+			throw DiagnosticError(diagnostic: diagnostic)
+		}
+		return .identifier(text)
+	}
+	
+	private static func makeVerifyPropertyFunctionSignature(
+		subscriptDecl: SubscriptDeclSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) throws -> FunctionSignatureSyntax {
+		let returnType = subscriptDecl.returnClause.type.trimmed
+		
+		let functionParameterClause: FunctionParameterClauseSyntax
+		switch accessorDecl.accessorSpecifier.trimmed.text {
+		case TokenSyntax.keyword(.get).text:
+			functionParameterClause = wrapToArgumentMatcher(subscriptDecl.parameterClause)
+		case TokenSyntax.keyword(.set).text:
+			functionParameterClause = FunctionParameterClauseSyntax {
+				for parameter in wrapToArgumentMatcher(subscriptDecl.parameterClause).parameters {
+					parameter
+				}
+				wrapToArgumentMatcher(FunctionParameterSyntax(firstName: "newValue", type: returnType))
+			}
+		default:
+			let diagnostic = Diagnostic(node: accessorDecl, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
+			throw DiagnosticError(diagnostic: diagnostic)
+		}
+		
+		return FunctionSignatureSyntax(parameterClause: functionParameterClause)
+	}
+	
+	private static func makeArgumentList(
+		subscriptDecl: SubscriptDeclSyntax,
+		accessorDecl: AccessorDeclSyntax
+	) throws -> [TokenSyntax] {
+		let generalParameters = subscriptDecl.parameterClause.parameters.map { $0.secondName ?? $0.firstName }
+		if accessorDecl.isGet {
+			return generalParameters
+		} else if accessorDecl.isSet {
+			return generalParameters + [.identifier("newValue")]
+		}
+		let diagnostic = Diagnostic(node: accessorDecl, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
+		throw DiagnosticError(diagnostic: diagnostic)
+	}
+	
 	// MARK: - General for Method and Property
 	
 	private static func makeVerifyBody(
@@ -248,54 +343,9 @@ extension MockMacro {
 		return try VariableDeclSyntax("\(raw: text)")
 	}
 	
-	static func makeCallStorageProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {
-		let storageName = makeCallStorageProperyName(funcDecl: funcDecl)
-		let parameterTypes = funcDecl.signature.parameterClause.parameters.map { $0.type }
-		let storageType = ArrayTypeSyntax(element: makeMethodCallType(arguments: parameterTypes))
-		return VariableDeclSyntax(
-			modifiers: DeclModifierListSyntax {
-				DeclModifierSyntax(name: .keyword(.private))
-			},
-			bindingSpecifier: .keyword(.var),
-			bindings: PatternBindingListSyntax {
-				PatternBindingSyntax(
-					pattern: IdentifierPatternSyntax(identifier: storageName),
-					typeAnnotation: TypeAnnotationSyntax(type: storageType),
-					initializer: InitializerClauseSyntax(value: ArrayExprSyntax(expressions: []))
-				)
-			}
-		)
-	}
-	
 	static func makeStoreCallToStorageExpr(funcDecl: FunctionDeclSyntax) throws -> ExprSyntax {
 		let functionSignature = try makeFunctionSignatureString(funcDecl: funcDecl)
 		return "container.append(mock: self, call: MethodCall(arguments: arguments), function: \"\(raw: functionSignature)\")"
-	}
-	
-	private static func makeStorageType(
-		bindingSyntax: PatternBindingSyntax,
-		accessorDecl: AccessorDeclSyntax
-	) -> TypeSyntax {
-		let elementType: TypeSyntax
-		switch accessorDecl.accessorSpecifier.trimmed.text {
-		case TokenSyntax.keyword(.get).text:
-			elementType = TypeSyntax(
-				fromProtocol: makeMethodCallType(
-					arguments: []
-				)
-			)
-		case TokenSyntax.keyword(.set).text:
-			elementType = TypeSyntax(
-				fromProtocol: makeMethodCallType(
-					arguments: [
-						getBindingType(from: bindingSyntax)
-					]
-				)
-			)
-		default:
-			fatalError("Unexpected accessor for property. Supported accessors: \"get\" and \"set\"")
-		}
-		return TypeSyntax(fromProtocol: ArrayTypeSyntax(element: elementType))
 	}
 	
 	static func makeStoreCallToStorageExpr(bindingSyntax: PatternBindingSyntax, accessorDecl: AccessorDeclSyntax) throws -> ExprSyntax {
@@ -303,19 +353,8 @@ extension MockMacro {
 		return "container.append(mock: self, call: MethodCall(arguments: arguments), function: \"\(raw: propertySignatureString)\")"
 	}
 	
-	private static func makeGenericType(_ name: TokenSyntax, from funcDecl: FunctionDeclSyntax) -> some TypeSyntaxProtocol {
-		return IdentifierTypeSyntax(
-			name: name,
-			genericArgumentClause: makeGenericArgumentClause(from: funcDecl)
-		)
+	static func makeStoreCallToStorageExpr(subscriptDecl: SubscriptDeclSyntax) -> ExprSyntax {
+		let propertySignatureString = makeSubscriptSignatureString(subscriptDecl: subscriptDecl)
+		return "container.append(mock: self, call: MethodCall(arguments: arguments), function: \"\(raw: propertySignatureString)\")"
 	}
-	
-	private static func makeGenericArgumentClause(from funcDecl: FunctionDeclSyntax) -> GenericArgumentClauseSyntax {
-		GenericArgumentClauseSyntax {
-			GenericArgumentSyntax(
-				argument: packParametersToTupleType(funcDecl.signature.parameterClause.parameters)
-			)
-		}
-	}
-
 }
