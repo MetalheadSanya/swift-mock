@@ -146,13 +146,13 @@ extension MockMacro {
 		if types.count <= 1 {
 			return TupleTypeElementListSyntax {
 				for type in types {
-					TupleTypeElementSyntax(type: removeEscapingParameter(type: type))
+					TupleTypeElementSyntax(type: makeParameterTypeReadyForPacking(type: type))
 				}
 			}
 		} else {
 			let rest = types.dropFirst()
 			return  TupleTypeElementListSyntax {
-				TupleTypeElementSyntax(type: removeEscapingParameter(type: types.first!))
+				TupleTypeElementSyntax(type: makeParameterTypeReadyForPacking(type: types.first!))
 				TupleTypeElementSyntax(
 					type: TupleTypeSyntax(elements: packParametersToTupleType(rest))
 				)
@@ -160,26 +160,32 @@ extension MockMacro {
 		}
 	}
 	
-	private static func removeEscapingParameter(type: some TypeSyntaxProtocol) -> TypeSyntax {
-		var newType: TypeSyntax
-		if let escapingType = type.as(AttributedTypeSyntax.self),
-			 escapingType.attributes.contains(where: { $0.isEscaping }) {
-			if escapingType.attributes.count == 1 {
-				newType = TypeSyntax(
-					escapingType.baseType
+	private static func makeParameterTypeReadyForPacking(type: some TypeSyntaxProtocol) -> TypeSyntax {
+		// Check on escaping attribute, if exist, remove then pack
+		if let type = type.as(AttributedTypeSyntax.self),
+			 type.attributes.contains(where: { $0.isEscaping }) {
+			if type.attributes.count == 1 {
+				return TypeSyntax(
+					type.baseType
 				)
 			} else {
-				newType = TypeSyntax(
+				return TypeSyntax(
 					AttributedTypeSyntax(
-						attributes: escapingType.attributes.filter { !$0.isEscaping },
-						baseType: escapingType.baseType
+						attributes: type.attributes.filter { !$0.isEscaping },
+						baseType: type.baseType
 					)
 				)
 			}
-		} else {
-			newType = TypeSyntax(type)
 		}
-		return newType
+		
+		// Check on nonescaping func, if non-escaping, use NonEscapingFunction
+		if type.as(FunctionTypeSyntax.self) != nil {
+			return TypeSyntax(
+				IdentifierTypeSyntax(name: .identifier("NonEscapingFunction"))
+			)
+		}
+		// Some other type
+		return TypeSyntax(type)
 	}
 	
 	// MARK: - Making Labeled Expressions
@@ -267,7 +273,7 @@ extension MockMacro {
 			fromProtocol: IdentifierTypeSyntax(
 				name: "ArgumentMatcher",
 				genericArgumentClause: GenericArgumentClauseSyntax {
-					GenericArgumentSyntax(argument: removeEscapingParameter(type: type))
+					GenericArgumentSyntax(argument: makeParameterTypeReadyForPacking(type: type))
 				}
 			)
 		)

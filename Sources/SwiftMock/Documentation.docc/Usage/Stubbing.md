@@ -310,3 +310,25 @@ func test() async throws {
 ```
 
 > Note: If you use the ``any(type:)`` function, the resulting stub will only process calls with the appropriate type. If the method is called with an argument of a different type, you will receive an error message that the call was not found.
+
+### Function Type Parameters Stubbing
+
+The framework allows you to stub methods that accept other functions as parameters in the same way as regular arguments.
+
+Due to the fact that only escaping parameters can be saved for later use, it is impossible to validate non-escaping arguments in verify constructs. To reduce problems, such arguments are stored in the system as a ``NonEscapingFunction`` structure. Such a structure cannot be checked by an argument matcher (except ``any()``), but the semantics of your method are preserved except for non-escaping function types (in this version). The signature in the `verify` and `when` constructs are preserved except for the type of your non-escaping functions to allow different non-escaping types to be passed under different parameter names.
+
+```swift 
+@Mock
+protocol SomeProtocol {
+	func testEscaping(_ f: @escaping (Int) -> Void)
+}
+
+func test() async throws {
+	let mock = SomeProtocolMock()
+
+	when(mock.$testEscaping(any()))
+		.thenReturn()
+
+	mock.testEscaping { print($0 }
+}
+```

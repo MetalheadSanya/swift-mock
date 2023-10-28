@@ -47,7 +47,8 @@ protocol GenericMethodProtocol {
 
 @Mock
 protocol ClosureProtocol {
-	func test(_ f: @escaping (Int) -> Void)
+	func testEscaping(_ f: @escaping (Int) -> Void)
+	func testNonEscaping(_ f: (Int) -> Void)
 }
 
 final class MethodStubbingTests: XCTestCase {
@@ -254,11 +255,22 @@ final class MethodStubbingTests: XCTestCase {
 	func testEscapingClosure() throws {
 		let mock = ClosureProtocolMock()
 		
-		when(mock.$test())
+		when(mock.$testEscaping())
 			.thenReturn()
 		
-		mock.test { _ in }
+		mock.testEscaping { _ in }
 		
-		verify(mock).test()
+		verify(mock).testEscaping()
+	}
+	
+	func testNonEscapingClosure() throws {
+		let mock = ClosureProtocolMock()
+		
+		when(mock.$testNonEscaping())
+			.thenReturn()
+		
+		mock.testNonEscaping { _ in }
+		
+		verify(mock).testNonEscaping()
 	}
 }
