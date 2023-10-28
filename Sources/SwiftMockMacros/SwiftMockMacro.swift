@@ -89,8 +89,6 @@ public struct MockMacro: PeerMacro {
 		from funcDecl: FunctionDeclSyntax,
 		isPublic: Bool
 	) -> FunctionDeclSyntax {
-		let prefix = makeTypePrefix(funcDecl: funcDecl)
-		let signatureType = TokenSyntax.identifier(prefix + "MethodSignature")
 		return funcDecl
 			.with(\.modifiers, DeclModifierListSyntax {
 				if isPublic { .public }
@@ -207,17 +205,6 @@ public struct MockMacro: PeerMacro {
 		}
 	}
 	
-	private static func makeTypePrefix(funcDecl: FunctionDeclSyntax) -> String {
-		var ownTypePrefix = ""
-		if funcDecl.signature.effectSpecifiers?.asyncSpecifier != nil {
-			ownTypePrefix += "Async"
-		}
-		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
-			ownTypePrefix += "Throws"
-		}
-		return ownTypePrefix
-	}
-	
 	static func wrapToArgumentMatcher(_ parameter: FunctionParameterSyntax) -> FunctionParameterSyntax {
 		FunctionParameterSyntax(
 			firstName: parameter.firstName,
@@ -238,11 +225,20 @@ public struct MockMacro: PeerMacro {
 	static func packParametersToTupleExpr<T: BidirectionalCollection>(
 		_ parameterList: T
 	) -> TupleExprSyntax where T.Element == FunctionParameterSyntax  {
+		func packParameter(functionParameter: FunctionParameterSyntax) -> ExprSyntax {
+			if functionParameter.type.as(FunctionTypeSyntax.self) != nil {
+				return "NonEscapingFunction()"
+			}
+			return ExprSyntax(
+				DeclReferenceExprSyntax(baseName: functionParameter.secondName ?? functionParameter.firstName)
+			)
+		}
+		
 		if parameterList.count <= 1 {
 			return TupleExprSyntax(
 				elements: LabeledExprListSyntax {
 					for parameter in parameterList {
-						LabeledExprSyntax(expression: DeclReferenceExprSyntax(baseName: parameter.secondName ?? parameter.firstName))
+						LabeledExprSyntax(expression: packParameter(functionParameter: parameter))
 					}
 				}
 			)
@@ -250,8 +246,8 @@ public struct MockMacro: PeerMacro {
 			let rest = parameterList.dropFirst()
 			return TupleExprSyntax(
 				elements: LabeledExprListSyntax {
-					let parameter = parameterList.first!
-					LabeledExprSyntax(expression: DeclReferenceExprSyntax(baseName: parameter.secondName ?? parameter.firstName))
+					let decl = packParameter(functionParameter: parameterList.first!)
+					LabeledExprSyntax(expression: decl)
 					LabeledExprSyntax(expression: packParametersToTupleExpr(rest))
 				}
 			)
