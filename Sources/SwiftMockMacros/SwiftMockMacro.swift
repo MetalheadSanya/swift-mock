@@ -16,6 +16,9 @@ public struct MockMacro: PeerMacro {
 			
 			let mockTypeToken = TokenSyntax.identifier(declaration.name.text + "Mock")
 			
+			let associatedTypeDecls = declaration.memberBlock.members
+				.compactMap { $0.decl.as(AssociatedTypeDeclSyntax.self) }
+			
 			return [
 				DeclSyntax(
 					try ClassDeclSyntax(
@@ -25,6 +28,7 @@ public struct MockMacro: PeerMacro {
 							DeclModifierSyntax(name: .keyword(.final))
 						},
 						name: mockTypeToken,
+						genericParameterClause: try AssociatedTypePrecessor.makeGenericParameterClause(associatedTypeDecls: associatedTypeDecls),
 						inheritanceClause: InheritanceClauseSyntax {
 							if declaration.attributes.contains(where: { $0.isObjc }) { InheritedTypeSyntax(type: TypeSyntax.nsObject) }
 							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))

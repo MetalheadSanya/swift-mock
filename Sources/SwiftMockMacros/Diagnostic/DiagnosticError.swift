@@ -28,8 +28,9 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	// TODO: support for reasync
 	case reasyncIsNotSupported
 	
-	// TODO: support for associated types
-	case associatedtypeIsNotSupported
+	// Associated types
+	// TODO: #38 Support for initializer in associated types
+	case associatedTypeInitializerIsNotSupported
 	
 	case propertyAccessorsNotSpecified
 	case propertyAccessorMustBeGetOrSet
@@ -63,8 +64,9 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return .error
 		case .reasyncIsNotSupported:
 			return .error
-			
-		case .associatedtypeIsNotSupported:
+		
+		// Associated types
+		case .associatedTypeInitializerIsNotSupported:
 			return .error
 			
 		case .propertyAccessorsNotSpecified:
@@ -105,8 +107,8 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .reasyncIsNotSupported:
 			return "'@Mock' doesn't support reasync methods"
 			
-		case .associatedtypeIsNotSupported:
-			return "'@Mock' doesn't support associatedtypes"
+		case .associatedTypeInitializerIsNotSupported:
+			return "'@Mock' doesn't support initializer in associatedtypes"
 			
 		case .propertyAccessorsNotSpecified:
 			return "Property in protocol must have explicit { get } or { get set } specifier"

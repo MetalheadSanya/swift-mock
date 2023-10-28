@@ -285,4 +285,58 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		throw XCTSkip("macros are only supported when running tests for the host platform")
 		#endif
 	}
+	
+	// TODO: #37 Support for generic where clause in associated types
+	func testAssociatedTypeGenericWhereClause() throws {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			protocol Test {
+				associatedtype A: K where K.A == Self
+			}
+			""",
+			expandedSource:
+			"""
+			protocol Test {
+				associatedtype A: K where K.A == Self
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "'@Mock' doesn't support generic where clause", line: 3, column: 22)
+			],
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+		#endif
+	}
+	
+	// TODO: #38 Support for initializer in associated types
+	func testAssociatedTypeInitializer() throws {
+		#if canImport(SwiftMockMacros)
+		assertMacroExpansion(
+			"""
+			@Mock
+			protocol Test {
+				associatedtype A = Int
+			}
+			""",
+			expandedSource:
+			"""
+			protocol Test {
+				associatedtype A = Int
+			}
+			""",
+			diagnostics: [
+				DiagnosticSpec(message: "'@Mock' doesn't support initializer in associatedtypes", line: 3, column: 19)
+			],
+			macros: testMacros,
+			indentationWidth: .tab
+		)
+		#else
+		throw XCTSkip("macros are only supported when running tests for the host platform")
+	#endif
+	}
 }
