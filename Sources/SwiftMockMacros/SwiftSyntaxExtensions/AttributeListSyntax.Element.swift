@@ -28,4 +28,11 @@ extension AttributeListSyntax.Element {
 		}
 		return attributeSyntax.attributeName.isObjc
 	}
+	
+	var isEscaping: Bool {
+		guard case let .attribute(attributeSyntax) = self else {
+			return false
+		}
+		return attributeSyntax.attributeName.isEscaping
+	}
 }
