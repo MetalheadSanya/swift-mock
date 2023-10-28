@@ -45,6 +45,11 @@ protocol GenericMethodProtocol {
 	func inheritedType<T: Equatable>(parameter: T) -> T
 }
 
+@Mock
+protocol ClosureProtocol {
+	func test(_ f: @escaping (Int) -> Void)
+}
+
 final class MethodStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
@@ -244,5 +249,16 @@ final class MethodStubbingTests: XCTestCase {
 			_ = mock.oneParameterAndReturn(parameter: CustomError.unknown)
 		}
 		#endif
+	}
+	
+	func testEscapingClosure() throws {
+		let mock = ClosureProtocolMock()
+		
+		when(mock.$test())
+			.thenReturn()
+		
+		mock.test { _ in }
+		
+		verify(mock).test()
 	}
 }

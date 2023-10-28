@@ -146,18 +146,40 @@ extension MockMacro {
 		if types.count <= 1 {
 			return TupleTypeElementListSyntax {
 				for type in types {
-					TupleTypeElementSyntax(type: type)
+					TupleTypeElementSyntax(type: removeEscapingParameter(type: type))
 				}
 			}
 		} else {
 			let rest = types.dropFirst()
 			return  TupleTypeElementListSyntax {
-				TupleTypeElementSyntax(type: types.first!)
+				TupleTypeElementSyntax(type: removeEscapingParameter(type: types.first!))
 				TupleTypeElementSyntax(
 					type: TupleTypeSyntax(elements: packParametersToTupleType(rest))
 				)
 			}
 		}
+	}
+	
+	private static func removeEscapingParameter(type: some TypeSyntaxProtocol) -> TypeSyntax {
+		var newType: TypeSyntax
+		if let escapingType = type.as(AttributedTypeSyntax.self),
+			 escapingType.attributes.contains(where: { $0.isEscaping }) {
+			if escapingType.attributes.count == 1 {
+				newType = TypeSyntax(
+					escapingType.baseType
+				)
+			} else {
+				newType = TypeSyntax(
+					AttributedTypeSyntax(
+						attributes: escapingType.attributes.filter { !$0.isEscaping },
+						baseType: escapingType.baseType
+					)
+				)
+			}
+		} else {
+			newType = TypeSyntax(type)
+		}
+		return newType
 	}
 	
 	// MARK: - Making Labeled Expressions
@@ -185,7 +207,7 @@ extension MockMacro {
 	
 	// MARK: - MethodInvocationContainer
 	
-	static func makeMethodInvocationContainerType(
+	private static func makeMethodInvocationContainerType(
 		isAsync: Bool,
 		isThrows: Bool
 	) -> TypeSyntax {
@@ -199,7 +221,7 @@ extension MockMacro {
 		)
 	}
 	
-	static func makeMethodInvocationContainerTypeExpr(
+	private static func makeMethodInvocationContainerTypeExpr(
 		isAsync: Bool,
 		isThrows: Bool
 	) -> TypeExprSyntax {
@@ -245,7 +267,7 @@ extension MockMacro {
 			fromProtocol: IdentifierTypeSyntax(
 				name: "ArgumentMatcher",
 				genericArgumentClause: GenericArgumentClauseSyntax {
-					GenericArgumentSyntax(argument: type)
+					GenericArgumentSyntax(argument: removeEscapingParameter(type: type))
 				}
 			)
 		)

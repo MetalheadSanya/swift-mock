@@ -98,7 +98,14 @@ public struct MockMacro: PeerMacro {
 			.with(\.name, TokenSyntax.identifier("$" + funcDecl.name.text))
 			.with(\.signature, FunctionSignatureSyntax(
 				parameterClause: wrapToArgumentMatcher(funcDecl.signature.parameterClause),
-				returnClause: ReturnClauseSyntax(type: makeGenericType(signatureType, from: funcDecl))
+				returnClause: ReturnClauseSyntax(
+					type: makeMethodSignatureType(
+						isAsync: funcDecl.isAsync,
+						isThrows: funcDecl.isThrows,
+						arguments: funcDecl.signature.parameterClause.parameters.map(\.type),
+						returnType: funcDecl.signature.returnClause?.type
+					)
+				)
 			))
 			.with(\.body, CodeBlockSyntax {
 				let parameters = funcDecl.signature.parameterClause.parameters
@@ -108,9 +115,11 @@ public struct MockMacro: PeerMacro {
 				}
 				ReturnStmtSyntax(
 					expression: FunctionCallExprSyntax(
-						calledExpression: GenericSpecializationExprSyntax(
-							expression: DeclReferenceExprSyntax(baseName: signatureType),
-							genericArgumentClause: makeGenericArgumentClause(from: funcDecl)
+						calledExpression: makeMethodSignatureExpr(
+							isAsync: funcDecl.isAsync,
+							isThrows: funcDecl.isThrows,
+							arguments: funcDecl.signature.parameterClause.parameters.map(\.type),
+							returnType: funcDecl.signature.returnClause?.type
 						),
 						leftParen: .leftParenToken(),
 						rightParen: .rightParenToken()
@@ -209,43 +218,13 @@ public struct MockMacro: PeerMacro {
 		return ownTypePrefix
 	}
 	
-	static func makeSyncTypePrefix(funcDecl: FunctionDeclSyntax) -> String {
-		var ownTypePrefix = ""
-		if funcDecl.signature.effectSpecifiers?.throwsSpecifier != nil {
-			ownTypePrefix += "Throws"
-		}
-		return ownTypePrefix
-	}
-	
-	private static func makeGenericType(_ name: TokenSyntax, from funcDecl: FunctionDeclSyntax) -> some TypeSyntaxProtocol {
-		return IdentifierTypeSyntax(
-			name: name,
-			genericArgumentClause: makeGenericArgumentClause(from: funcDecl)
-		)
-	}
-	
 	static func wrapToArgumentMatcher(_ parameter: FunctionParameterSyntax) -> FunctionParameterSyntax {
-		parameter
-			.with(\.type, TypeSyntax(
-				AttributedTypeSyntax(
-					attributes: AttributeListSyntax {
-						.attribute(AttributeSyntax(attributeName: IdentifierTypeSyntax(name: .identifier("escaping"))))
-					},
-					baseType: IdentifierTypeSyntax(
-						name: .identifier("ArgumentMatcher"),
-						genericArgumentClause: GenericArgumentClauseSyntax {
-							GenericArgumentSyntax(argument: parameter.type)
-						}
-					)
-				)
-			))
-			.with(\.defaultValue, InitializerClauseSyntax(
-				value: FunctionCallExprSyntax(
-					calledExpression: DeclReferenceExprSyntax(baseName: "any"),
-					leftParen: .leftParenToken(),
-					rightParen: .rightParenToken()
-				) { }
-			))
+		FunctionParameterSyntax(
+			firstName: parameter.firstName,
+			secondName: parameter.secondName,
+			type: wrapToEscapingType(type: wrapToArgumentMatcherType(type: parameter.type)),
+			defaultValue: InitializerClauseSyntax(value: anyFunctionCallExpr)
+		)
 	}
 	
 	static func wrapToArgumentMatcher(_ parameterClause: FunctionParameterClauseSyntax) -> FunctionParameterClauseSyntax {
@@ -254,40 +233,6 @@ public struct MockMacro: PeerMacro {
 				wrapToArgumentMatcher(parameter)
 			}
 		})
-	}
-	
-	private static func makeGenericArgumentClause(from funcDecl: FunctionDeclSyntax) -> GenericArgumentClauseSyntax {
-		GenericArgumentClauseSyntax {
-			GenericArgumentSyntax(
-				argument: packParametersToTupleType(funcDecl.signature.parameterClause.parameters)
-			)
-			GenericArgumentSyntax(
-				argument: funcDecl.signature.returnClause?.type ?? TypeSyntax(
-					fromProtocol: IdentifierTypeSyntax(name: .identifier("Void")))
-			)
-		}
-	}
-	
-	static func packParametersToTupleType<T: BidirectionalCollection>(
-		_ parameterList: T
-	) -> TupleTypeSyntax where T.Element == FunctionParameterSyntax  {
-		if parameterList.count <= 1 {
-			return TupleTypeSyntax(
-				elements: TupleTypeElementListSyntax {
-					for parameter in parameterList {
-						TupleTypeElementSyntax(type: parameter.type)
-					}
-				}
-			)
-		} else {
-			let rest = parameterList.dropFirst()
-			return TupleTypeSyntax(
-				elements: TupleTypeElementListSyntax {
-					TupleTypeElementSyntax(type: parameterList.first!.type)
-					TupleTypeElementSyntax(type: packParametersToTupleType(rest))
-				}
-			)
-		}
 	}
 	
 	static func packParametersToTupleExpr<T: BidirectionalCollection>(
