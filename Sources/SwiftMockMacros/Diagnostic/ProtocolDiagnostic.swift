@@ -43,8 +43,6 @@ extension Diagnostic {
 		for member in declaration.memberBlock.members {
 			if let functionDecl = member.decl.as(FunctionDeclSyntax.self) {
 				try Diagnostic.validateFunctionDecl(functionDecl)
-			} else if let associatedTypeDecl = member.decl.as(AssociatedTypeDeclSyntax.self) {
-				try Diagnostic.validateAssociatedTypeDecl(associatedTypeDecl)
 			} else if let variableDeclaration = member.decl.as(VariableDeclSyntax.self) {
 				try Diagnostic.validatePropertyDeclaration(variableDeclaration)
 			}
