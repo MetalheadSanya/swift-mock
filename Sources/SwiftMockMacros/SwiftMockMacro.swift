@@ -31,7 +31,7 @@ public struct MockMacro: PeerMacro {
 						genericParameterClause: try AssociatedTypePrecessor.makeGenericParameterClause(associatedTypeDecls: associatedTypeDecls),
 						inheritanceClause: InheritanceClauseSyntax {
 							if declaration.attributes.contains(where: { $0.isObjc }) { InheritedTypeSyntax(type: TypeSyntax.nsObject) }
-							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name))
+							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: declaration.name.trimmingCharacters(in: .whitespacesAndNewlines)))
 							InheritedTypeSyntax(type: IdentifierTypeSyntax(name: "Verifiable"))
 						}
 					) {
