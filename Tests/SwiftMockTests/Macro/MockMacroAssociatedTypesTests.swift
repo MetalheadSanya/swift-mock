@@ -33,7 +33,7 @@ final class MockMacroAssociatedTypesTests: XCTestCase {
 				associatedtype A
 			}
 			
-			final class TestMock<A>: Test , Verifiable {
+			final class TestMock<A>: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -72,7 +72,7 @@ final class MockMacroAssociatedTypesTests: XCTestCase {
 				associatedtype B
 			}
 			
-			final class TestMock<A, B>: Test , Verifiable {
+			final class TestMock<A, B>: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -109,7 +109,7 @@ final class MockMacroAssociatedTypesTests: XCTestCase {
 				associatedtype A: Encodable
 			}
 			
-			final class TestMock<A: Encodable>: Test , Verifiable {
+			final class TestMock<A: Encodable>: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -146,7 +146,7 @@ final class MockMacroAssociatedTypesTests: XCTestCase {
 				associatedtype A: Decodable, Encodable
 			}
 			
-			final class TestMock<A: Decodable & Encodable>: Test , Verifiable {
+			final class TestMock<A: Decodable & Encodable>: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
