@@ -26,7 +26,7 @@ final class MockMacroSubscriptTests: XCTestCase {
 				subscript(_ value: Int) -> Int { get }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -82,7 +82,7 @@ final class MockMacroSubscriptTests: XCTestCase {
 				subscript(_ value: Int) -> Int { get set }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -156,7 +156,7 @@ final class MockMacroSubscriptTests: XCTestCase {
 				subscript<T: Equitable>(_ value: T) -> T { get set }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -230,7 +230,7 @@ final class MockMacroSubscriptTests: XCTestCase {
 				subscript(_ value0: Int, _ value1: Int) -> Int { get }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer

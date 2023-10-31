@@ -26,7 +26,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 				func call<T>(_ argument: T)
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -82,7 +82,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 				func call<T>(_ argument: T) -> T
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -138,7 +138,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 				func call<T: Equitable & Hashable>(_ argument: T) -> T
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -194,7 +194,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 				func call<T: Equitable & Hashable>(_ argument: T) async throws -> T
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer

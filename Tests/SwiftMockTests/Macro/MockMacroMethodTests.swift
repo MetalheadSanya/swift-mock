@@ -33,7 +33,7 @@ final class MockMacroMethodTests: XCTestCase {
 				func test(_ f: @escaping (Int) -> Void)
 			}
 			
-			final class TestMock: Test , Verifiable {
+			final class TestMock: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -86,7 +86,7 @@ final class MockMacroMethodTests: XCTestCase {
 				func test(_ f: (Int) -> Void)
 			}
 			
-			final class TestMock: Test , Verifiable {
+			final class TestMock: Test, Verifiable {
 				struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer

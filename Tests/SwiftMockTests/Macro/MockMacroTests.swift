@@ -92,7 +92,7 @@ final class MockMacroTests: XCTestCase {
 				func call()
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -148,7 +148,7 @@ final class MockMacroTests: XCTestCase {
 				var prop: Int { get }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -202,7 +202,7 @@ final class MockMacroTests: XCTestCase {
 				var prop: Int { get set }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -272,7 +272,7 @@ final class MockMacroTests: XCTestCase {
 				var prop: Int { get throws }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -326,7 +326,7 @@ final class MockMacroTests: XCTestCase {
 				var prop: Int { get async }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -380,7 +380,7 @@ final class MockMacroTests: XCTestCase {
 				var prop: Int { get async throws }
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -434,7 +434,7 @@ final class MockMacroTests: XCTestCase {
 				func call() -> Int
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -490,7 +490,7 @@ final class MockMacroTests: XCTestCase {
 				func call(argument: Int)
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -546,7 +546,7 @@ final class MockMacroTests: XCTestCase {
 				func call(argument0: Int, argument1: Int)
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -604,7 +604,7 @@ final class MockMacroTests: XCTestCase {
 				func call(argument0: Int, argument1: Int) throws -> Int
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
@@ -662,7 +662,7 @@ final class MockMacroTests: XCTestCase {
 				func call(argument0: Int, argument1: Int) async -> Int
 			}
 			
-			public final class TestMock: Test , Verifiable {
+			public final class TestMock: Test, Verifiable {
 				public struct Verify: MockVerify {
 					let mock: TestMock
 					let container: CallContainer
