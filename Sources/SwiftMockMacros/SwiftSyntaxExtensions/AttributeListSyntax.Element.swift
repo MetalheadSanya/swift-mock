@@ -15,6 +15,13 @@ extension AttributeListSyntax.Element {
 		return attributeSyntax.attributeName.isMock
 	}
 	
+	var isAvailable: Bool {
+		guard case let .attribute(attributeSyntax) = self else {
+			return false
+		}
+		return attributeSyntax.attributeName.isAvailable
+	}
+	
 	var isDynamicMemberLookup: Bool {
 		guard case let .attribute(attributeSyntax) = self else {
 			return false
