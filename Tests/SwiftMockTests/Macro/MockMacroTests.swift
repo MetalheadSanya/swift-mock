@@ -33,6 +33,8 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 			}
 			""",
@@ -108,6 +110,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call()")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call__ = MethodInvocationContainer()
 				public
@@ -162,6 +166,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let prop___getter = MethodInvocationContainer()
@@ -220,6 +226,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0 = value
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop=")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let prop___getter = MethodInvocationContainer()
@@ -287,6 +295,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop throws")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let prop___getter = ThrowsMethodInvocationContainer()
 				public func $propGetter() -> ThrowsMethodSignature<(), Int> {
@@ -340,6 +350,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let prop___getter = AsyncMethodInvocationContainer()
@@ -395,6 +407,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async throws")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let prop___getter = AsyncThrowsMethodInvocationContainer()
 				public func $propGetter() -> AsyncThrowsMethodSignature<(), Int> {
@@ -449,6 +463,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call() -> Int")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let call__ = MethodInvocationContainer()
@@ -506,6 +522,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument:)")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call_argument_ = MethodInvocationContainer()
 				public
@@ -562,6 +580,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:)")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let call_argument0_argument1_ = MethodInvocationContainer()
@@ -621,6 +641,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) throws -> Int")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call_argument0_argument1_throws = ThrowsMethodInvocationContainer()
 				public
@@ -679,6 +701,8 @@ final class MockMacroTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async -> Int")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call_argument0_argument1_async = AsyncMethodInvocationContainer()
 				public
@@ -736,6 +760,8 @@ final class MockMacroTests: XCTestCase {
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let call_argument0_argument1_asyncthrows = AsyncThrowsMethodInvocationContainer()

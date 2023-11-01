@@ -41,6 +41,8 @@ final class MockMacroSubscriptTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get }")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let subscript___value__Int_____Int___getter = MethodInvocationContainer()
 				public func $subscriptGetter(_ value: @escaping ArgumentMatcher<Int> = any()) -> MethodSignature<(Int), Int> {
@@ -101,6 +103,8 @@ final class MockMacroSubscriptTests: XCTestCase {
 						let argumentMatcher0 = zip(value, argumentMatcher1)
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get set }")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let subscript___value__Int_____Int___getter = MethodInvocationContainer()
@@ -176,6 +180,8 @@ final class MockMacroSubscriptTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript<T: Equitable>(_ value: T) -> T { get set }")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let subscript_T__Equitable____value__T_____T___getter = MethodInvocationContainer()
 				public func $subscriptGetter<T: Equitable>(_ value: @escaping ArgumentMatcher<T> = any()) -> MethodSignature<(T), T> {
@@ -245,6 +251,8 @@ final class MockMacroSubscriptTests: XCTestCase {
 						let argumentMatcher0 = zip(value0, argumentMatcher1)
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value0: Int, _ value1: Int) -> Int { get }")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let subscript___value0__Int____value1__Int_____Int___getter = MethodInvocationContainer()
