@@ -42,6 +42,8 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:)")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call___ = MethodInvocationContainer()
 				public
@@ -97,6 +99,8 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						let argumentMatcher0 = argument
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:) -> T")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let call___ = MethodInvocationContainer()
@@ -154,6 +158,8 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) -> T")
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 				private let call___ = MethodInvocationContainer()
 				public
@@ -209,6 +215,8 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						let argumentMatcher0 = argument
 						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) async throws -> T")
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 				private let call___asyncthrows = AsyncThrowsMethodInvocationContainer()

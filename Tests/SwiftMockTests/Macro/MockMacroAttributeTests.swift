@@ -35,6 +35,8 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.times = times
 					}
 				}
+				public init() {
+				}
 				public let container = VerifyContainer()
 			}
 			""",
@@ -72,6 +74,8 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
+				}
+				public init() {
 				}
 				public let container = VerifyContainer()
 			}

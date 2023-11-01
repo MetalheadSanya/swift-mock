@@ -36,6 +36,7 @@ public struct MockMacro: PeerMacro {
 						}
 					) {
 						try makeVerifyType(declaration)
+						if declaration.isPublic { makePublicInit() }
 						try makeVerifyCallStorageProperty(isPublic: declaration.isPublic)
 						for member in declaration.memberBlock.members {
 							if let subscriptDecl = member.decl.as(SubscriptDeclSyntax.self) {
@@ -65,6 +66,22 @@ public struct MockMacro: PeerMacro {
 		} catch {
 			throw error
 		}
+	}
+	
+	private static func makePublicInit() -> DeclSyntax {
+		DeclSyntax(
+			InitializerDeclSyntax(
+				modifiers: DeclModifierListSyntax {
+					.public
+				},
+				signature: FunctionSignatureSyntax(
+					parameterClause: FunctionParameterClauseSyntax(
+						parameters: []
+					)
+				),
+				bodyBuilder: { }
+			)
+		)
 	}
 	
 	private static func makeInvocationContainerProperty(funcDecl: FunctionDeclSyntax) -> VariableDeclSyntax {
