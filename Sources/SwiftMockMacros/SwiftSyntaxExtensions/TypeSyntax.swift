@@ -34,6 +34,14 @@ extension TypeSyntax {
 		return self.name.isMock
 	}
 	
+	var isAvailable: Bool {
+		guard let self = self.as(IdentifierTypeSyntax.self) else {
+			return false
+		}
+		
+		return self.name.trimmed.text == TokenSyntax.keyword(.available).text
+	}
+	
 	var isDynamicMemberLookup: Bool {
 		guard let self = self.as(IdentifierTypeSyntax.self) else {
 			return false

@@ -128,34 +128,6 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		#endif
 	}
 	
-	func testAttributedMethodDiagnostic() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			public protocol Test {
-				@available(iOS 14, macOS 12, *)
-				func call()
-			}
-			""",
-			expandedSource:
-			"""
-			public protocol Test {
-				@available(iOS 14, macOS 12, *)
-				func call()
-			}
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support method attributes", line: 3, column: 2)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
-	
 	func testMethodWithGenericParametersDiagnostic() throws {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

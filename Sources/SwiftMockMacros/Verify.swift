@@ -90,6 +90,7 @@ extension MockMacro {
 	private static func makeVerifyMethod(protocolDecl: ProtocolDeclSyntax, funcDecl: FunctionDeclSyntax) throws -> FunctionDeclSyntax {
 		let funcSignatureString = try makeFunctionSignatureString(funcDecl: funcDecl)
 		return funcDecl
+			.with(\.attributes, MethodProcessor.makeVerifyMethodAttributes(functionDecl: funcDecl))
 			.with(\.modifiers, DeclModifierListSyntax {
 				if protocolDecl.isPublic { .public }
 			})

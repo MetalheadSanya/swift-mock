@@ -11,11 +11,6 @@ import SwiftSyntax
 
 extension Diagnostic {
 	static func validateFunctionDecl(_ declaration: FunctionDeclSyntax) throws {
-		if let attribute = declaration.attributes.first {
-			let diagnostic = Diagnostic(node: attribute, message: DiagnosticMessage.attributesIsNotSupported)
-			throw DiagnosticError(diagnostic: diagnostic)
-		}
-		
 		if let effectSpecifiers = declaration.signature.effectSpecifiers {
 			if let asyncSpecifier = effectSpecifiers.asyncSpecifier, asyncSpecifier.isReasync {
 				let diagnostic = Diagnostic(node: asyncSpecifier, message: DiagnosticMessage.reasyncIsNotSupported)
