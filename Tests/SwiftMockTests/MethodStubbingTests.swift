@@ -51,6 +51,12 @@ protocol ClosureProtocol {
 	func testNonEscaping(_ f: (Int) -> Void)
 }
 
+@Mock
+protocol MethodProtocol {
+	func rethrowsMethod(_ f: @escaping () throws -> Void) rethrows
+	func asyncRethrowsMethod(_ f: @escaping () throws -> Void) async rethrows
+}
+
 final class MethodStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
@@ -272,5 +278,57 @@ final class MethodStubbingTests: XCTestCase {
 		mock.testNonEscaping { _ in }
 		
 		verify(mock).testNonEscaping()
+	}
+	
+	func testRethrowsMethodReturn() throws {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$rethrowsMethod())
+			.thenReturn()
+		
+		mock.rethrowsMethod { }
+		
+		verify(mock).rethrowsMethod()
+	}
+	
+	func testRethrowsMethodThrow() throws {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$rethrowsMethod())
+			.thenThrow(CustomError.unknown)
+		
+		XCTAssertThrowsError(
+			try mock.rethrowsMethod { throw CustomError.unknown }
+		)
+		
+		verify(mock).rethrowsMethod()
+	}
+	
+	func testAsyncRethrowsMethodReturn() async throws {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$asyncRethrowsMethod())
+			.thenReturn()
+		
+		await mock.asyncRethrowsMethod { }
+		
+		verify(mock).asyncRethrowsMethod()
+	}
+	
+	func testAsyncRethrowsMethodThrow() async throws {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$asyncRethrowsMethod())
+			.thenThrow(CustomError.unknown)
+		
+		var catchedError: Error?
+		do {
+			_ = try await mock.asyncRethrowsMethod { throw CustomError.unknown }
+		} catch {
+			catchedError = error
+		}
+		XCTAssertNotNil(catchedError)
+		
+		verify(mock).asyncRethrowsMethod()
 	}
 }

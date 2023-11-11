@@ -97,7 +97,8 @@ extension MockMacro {
 	) -> InitializerClauseSyntax {
 		makeMethodInvocationContainerInitializerClause(
 			isAsync: accessorDecl.isAsync,
-			isThrows: accessorDecl.isThrows
+			isThrows: accessorDecl.isThrows,
+			isRethrows: false
 		)
 	}
 	

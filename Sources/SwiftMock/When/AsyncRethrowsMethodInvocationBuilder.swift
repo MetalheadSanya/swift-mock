@@ -1,32 +1,32 @@
 //
-//  ThrowsMethodInvocationBuilder.swift
+//  AsyncRethrowsMethodInvocationBuilder.swift
 //
 //
 //  Created by Alexandr Zalutskiy on 20/10/2023.
 //
 
-public final class ThrowsMethodInvocationBuilder<Arguments, Result> {
+public final class AsyncRethrowsMethodInvocationBuilder<Arguments, Result> {
 	let argumentMatcher: ArgumentMatcher<Arguments>
-	let register: (ThrowsMethodInvocation<Arguments, Result>) -> Void
+	let register: (AsyncRethrowsMethodInvocation<Arguments, Result>) -> Void
 	
-	var invocation: ThrowsMethodInvocation<Arguments, Result>?
+	var invocation: AsyncRethrowsMethodInvocation<Arguments, Result>?
 	
 	init(
 		argumentMatcher: @escaping ArgumentMatcher<Arguments>,
-		register: @escaping (ThrowsMethodInvocation<Arguments, Result>) -> Void
+		register: @escaping (AsyncRethrowsMethodInvocation<Arguments, Result>) -> Void
 	) {
 		self.argumentMatcher = argumentMatcher
 		self.register = register
 	}
 }
 
-public extension ThrowsMethodInvocationBuilder {
+public extension AsyncRethrowsMethodInvocationBuilder {
 	@discardableResult
-	func thenReturn(_ evaluation: @escaping (Arguments) throws -> Result) -> Self {
+	func thenReturn(_ evaluation: @escaping (Arguments) async throws -> Result) -> Self {
 		if let invocation = invocation {
 			invocation.append(evaluation)
 		} else {
-			let invocation = ThrowsMethodInvocation(
+			let invocation = AsyncRethrowsMethodInvocation(
 				matcher: argumentMatcher,
 				evaluation: evaluation
 			)
@@ -47,7 +47,7 @@ public extension ThrowsMethodInvocationBuilder {
 	}
 }
 
-public extension ThrowsMethodInvocationBuilder where Result == Void {
+public extension AsyncRethrowsMethodInvocationBuilder where Result == Void {
 	@discardableResult
 	func thenReturn() -> Self {
 		thenReturn(())

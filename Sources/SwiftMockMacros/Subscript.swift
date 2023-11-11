@@ -64,7 +64,7 @@ extension MockMacro {
 	) throws -> PatternBindingSyntax {
 		PatternBindingSyntax(
 			pattern: try makeInvocationContainerPattern(subscriptDecl: subscriptDecl, accessorDecl: accessorDecl),
-			initializer: makeMethodInvocationContainerInitializerClause(isAsync: false, isThrows: false)
+			initializer: makeMethodInvocationContainerInitializerClause(isAsync: false, isThrows: false, isRethrows: false)
 		)
 	}
 	

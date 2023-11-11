@@ -176,6 +176,94 @@ public func when<Arguments, Result>(
 	)
 }
 
+/// Enables stubbing methods. Use it when you want the mock to return particular value when particular method is called.
+///
+/// Simply put: "*when* the x method is called *then* return y".
+///
+/// Examples:
+///
+/// ```swift
+/// when(mock.$someMethod()).thenReturn(10)
+/// ```
+///
+/// You can use flexible argument matchers, e.g:
+/// ```swift
+/// when(mock.$someMethod(argument: any())).thenReturn(10)
+///	```
+///
+/// Setting exception to be thrown:
+/// ```swift
+/// when(mock.$someMethod(argument: eq("some arg"))).thenThrow(SomeError.error)
+/// ```
+///
+/// You can set different behavior for consecutive method calls.
+/// Last stubbing (e.g: thenReturn("foo")) determines the behavior of further consecutive calls.
+/// ```swift
+/// when(mock.$someMethod(argument: eq("some arg")))
+/// 	.thenThrow(SomeError.error)
+/// 	.thenReturn("foo")
+/// ```
+///
+/// - Note: Stubbing can be overridden: for example common stubbing can go to fixture
+/// 	setup but the test methods can override it.
+/// 	Please note that overriding stubbing is a potential code smell that points out too much stubbing.
+/// - Note: Once stubbed, the method will always return stubbed value regardless
+/// 	of how many times it is called.
+/// - Note: Last stubbing is more important - when you stubbed the same method with
+/// 	the same arguments many times.
+public func when<Arguments, Result>(
+	_ method: RethrowsMethodSignature<Arguments, Result>
+) -> RethrowsMethodInvocationBuilder<Arguments, Result> {
+	RethrowsMethodInvocationBuilder(
+		argumentMatcher: method.argumentMatcher,
+		register: method.register
+	)
+}
+
+/// Enables stubbing methods. Use it when you want the mock to return particular value when particular method is called.
+///
+/// Simply put: "*when* the x method is called *then* return y".
+///
+/// Examples:
+///
+/// ```swift
+/// when(mock.$someMethod()).thenReturn(10)
+/// ```
+///
+/// You can use flexible argument matchers, e.g:
+/// ```swift
+/// when(mock.$someMethod(argument: any())).thenReturn(10)
+///	```
+///
+/// Setting exception to be thrown:
+/// ```swift
+/// when(mock.$someMethod(argument: eq("some arg"))).thenThrow(SomeError.error)
+/// ```
+///
+/// You can set different behavior for consecutive method calls.
+/// Last stubbing (e.g: thenReturn("foo")) determines the behavior of further consecutive calls.
+/// ```swift
+/// when(mock.$someMethod(argument: eq("some arg")))
+/// 	.thenThrow(SomeError.error)
+/// 	.thenReturn("foo")
+/// ```
+///
+/// - Note: Stubbing can be overridden: for example common stubbing can go to fixture
+/// 	setup but the test methods can override it.
+/// 	Please note that overriding stubbing is a potential code smell that points out too much stubbing.
+/// - Note: Once stubbed, the method will always return stubbed value regardless
+/// 	of how many times it is called.
+/// - Note: Last stubbing is more important - when you stubbed the same method with
+/// 	the same arguments many times.
+public func when<Arguments, Result>(
+	_ method: AsyncRethrowsMethodSignature<Arguments, Result>
+) -> AsyncRethrowsMethodInvocationBuilder<Arguments, Result> {
+	AsyncRethrowsMethodInvocationBuilder(
+		argumentMatcher: method.argumentMatcher,
+		register: method.register
+	)
+}
+
 /// Creates a `Verify` structure specific to a mock object whose method calls need to be verified.
 ///
 /// - Parameters:

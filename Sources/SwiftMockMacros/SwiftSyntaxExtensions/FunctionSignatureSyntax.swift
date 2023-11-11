@@ -13,6 +13,16 @@ extension FunctionSignatureSyntax {
 	}
 	
 	var isThrows: Bool {
-		effectSpecifiers?.throwsSpecifier != nil
+		guard let throwsSpecifier = effectSpecifiers?.throwsSpecifier, throwsSpecifier.isThrows else {
+			return false
+		}
+		return true
+	}
+	
+	var isRethrows: Bool {
+		guard let throwsSpecifier = effectSpecifiers?.throwsSpecifier, throwsSpecifier.isRethrows else {
+			return false
+		}
+		return true
 	}
 }
