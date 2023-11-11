@@ -47,6 +47,7 @@ public struct MockMacro: PeerMacro {
 								makeInvocationContainerProperty(funcDecl: funcDecl)
 								makeSignatureMethod(from: funcDecl, isPublic: declaration.isPublic)
 								funcDecl
+									.with(\.leadingTrivia, Trivia(pieces: []))
 									.with(\.attributes, MethodProcessor.makeMockMethodArrtibutes(functionDecl: funcDecl))
 									.with(\.modifiers, DeclModifierListSyntax {
 										if declaration.isPublic { .public }

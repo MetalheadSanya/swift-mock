@@ -29,12 +29,6 @@ extension Diagnostic {
 			throw DiagnosticError(diagnostic: diagnostic)
 		}
 		
-		// TODO: support for primary associated types
-		if let primaryAssociatedTypeClause = declaration.primaryAssociatedTypeClause {
-			let diagnostic = Diagnostic(node: primaryAssociatedTypeClause, message: DiagnosticMessage.primaryAssociatedTypesIsNotSupported)
-			throw DiagnosticError(diagnostic: diagnostic)
-		}
-		
 		if let inheritanceClause = declaration.inheritanceClause, inheritanceClause.inheritedTypes.contains(where: { !$0.type.isAnyObject }) {
 			let diagnostic = Diagnostic(node: inheritanceClause, message: DiagnosticMessage.inheritanceIsNotSupported)
 			throw DiagnosticError(diagnostic: diagnostic)

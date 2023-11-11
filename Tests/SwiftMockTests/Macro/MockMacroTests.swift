@@ -121,8 +121,7 @@ final class MockMacroTests: XCTestCase {
 							self.call__.append($0)
 						})
 				}
-				public
-					func call() {
+				public func call() {
 					let arguments = ()
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call()")
 					return call__.find(with: arguments, type: "TestMock", function: "call()")
@@ -475,8 +474,7 @@ final class MockMacroTests: XCTestCase {
 							self.call__.append($0)
 						})
 				}
-				public
-					func call() -> Int {
+				public func call() -> Int {
 					let arguments = ()
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call() -> Int")
 					return call__.find(with: arguments, type: "TestMock", function: "call() -> Int")
@@ -533,8 +531,7 @@ final class MockMacroTests: XCTestCase {
 							self.call_argument_.append($0)
 						})
 				}
-				public
-					func call(argument: Int) {
+				public func call(argument: Int) {
 					let arguments = (argument)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument:)")
 					return call_argument_.find(with: arguments, type: "TestMock", function: "call(argument:)")
@@ -593,8 +590,7 @@ final class MockMacroTests: XCTestCase {
 							self.call_argument0_argument1_.append($0)
 						})
 				}
-				public
-					func call(argument0: Int, argument1: Int) {
+				public func call(argument0: Int, argument1: Int) {
 					let arguments = (argument0, (argument1))
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:)")
 					return call_argument0_argument1_.find(with: arguments, type: "TestMock", function: "call(argument0:argument1:)")
@@ -653,8 +649,7 @@ final class MockMacroTests: XCTestCase {
 							self.call_argument0_argument1_throws.append($0)
 						})
 				}
-				public
-					func call(argument0: Int, argument1: Int) throws -> Int {
+				public func call(argument0: Int, argument1: Int) throws -> Int {
 					let arguments = (argument0, (argument1))
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) throws -> Int")
 					return try call_argument0_argument1_throws.find(with: arguments, type: "TestMock", function: "call(argument0:argument1:) throws -> Int")
@@ -713,8 +708,7 @@ final class MockMacroTests: XCTestCase {
 							self.call_argument0_argument1_async.append($0)
 						})
 				}
-				public
-					func call(argument0: Int, argument1: Int) async -> Int {
+				public func call(argument0: Int, argument1: Int) async -> Int {
 					let arguments = (argument0, (argument1))
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) async -> Int")
 					return await call_argument0_argument1_async.find(with: arguments, type: "TestMock", function: "call(argument0:argument1:) async -> Int")
@@ -773,8 +767,7 @@ final class MockMacroTests: XCTestCase {
 							self.call_argument0_argument1_asyncthrows.append($0)
 						})
 				}
-				public
-					func call(argument0: Int, argument1: Int) async throws -> Int {
+				public func call(argument0: Int, argument1: Int) async throws -> Int {
 					let arguments = (argument0, (argument1))
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call(argument0:argument1:) async throws -> Int")
 					return try await call_argument0_argument1_asyncthrows.find(with: arguments, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int")

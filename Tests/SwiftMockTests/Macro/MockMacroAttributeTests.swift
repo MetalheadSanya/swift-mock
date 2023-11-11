@@ -128,7 +128,7 @@ final class MockMacroAttributeTests: XCTestCase {
 							self.dynamicallyCall_withArguments_.append($0)
 						})
 				}
-					func dynamicallyCall(withArguments phoneNumber: [Int]) {
+				func dynamicallyCall(withArguments phoneNumber: [Int]) {
 					let arguments = (phoneNumber)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "dynamicallyCall(withArguments:)")
 					return dynamicallyCall_withArguments_.find(with: arguments, type: "TelephoneExchangeMock", function: "dynamicallyCall(withArguments:)")

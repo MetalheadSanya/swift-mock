@@ -53,8 +53,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 							self.call___.append($0)
 						})
 				}
-				public
-					func call<T>(_ argument: T) {
+				public func call<T>(_ argument: T) {
 					let arguments = (argument)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call<T>(_:)")
 					return call___.find(with: arguments, type: "TestMock", function: "call<T>(_:)")
@@ -111,8 +110,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 							self.call___.append($0)
 						})
 				}
-				public
-					func call<T>(_ argument: T) -> T {
+				public func call<T>(_ argument: T) -> T {
 					let arguments = (argument)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call<T>(_:) -> T")
 					return call___.find(with: arguments, type: "TestMock", function: "call<T>(_:) -> T")
@@ -169,8 +167,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 							self.call___.append($0)
 						})
 				}
-				public
-					func call<T: Equitable & Hashable>(_ argument: T) -> T {
+				public func call<T: Equitable & Hashable>(_ argument: T) -> T {
 					let arguments = (argument)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call<T: Equitable & Hashable>(_:) -> T")
 					return call___.find(with: arguments, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) -> T")
@@ -227,8 +224,7 @@ final class MockMacroGenericMethodTests: XCTestCase {
 							self.call___asyncthrows.append($0)
 						})
 				}
-				public
-					func call<T: Equitable & Hashable>(_ argument: T) async throws -> T {
+				public func call<T: Equitable & Hashable>(_ argument: T) async throws -> T {
 					let arguments = (argument)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "call<T: Equitable & Hashable>(_:) async throws -> T")
 					return try await call___asyncthrows.find(with: arguments, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) async throws -> T")
