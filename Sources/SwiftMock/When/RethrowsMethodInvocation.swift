@@ -1,11 +1,11 @@
 //
-//  ThrowsMethodInvocation.swift
+//  RethrowsMethodInvocation.swift
 //
 //
-//  Created by Alexandr Zalutskiy on 20/10/2023.
+//  Created by Alexandr Zalutskiy on 11/11/2023.
 //
 
-public final class ThrowsMethodInvocation<Arguments, Result> {
+public final class RethrowsMethodInvocation<Arguments, Result> {
 	let match: ArgumentMatcher<Arguments>
 	private var evaluations: [(Arguments) throws -> Result]
 	private var current = 0
@@ -22,13 +22,28 @@ public final class ThrowsMethodInvocation<Arguments, Result> {
 		evaluations.append(evaluation)
 	}
 	
-	func eval(_ arguments: Arguments) throws -> Result {
+	func eval(_ arguments: Arguments, _ f: (Error) throws -> Void) rethrows -> Result {
 		defer {
 			if current < evaluations.count - 1 {
 				current += 1
 			}
 		}
 		let evaluation = evaluations[current]
-		return try evaluation(arguments)
+		
+		var result: Result?
+		var error: Error?
+		
+		do {
+			result = try evaluation(arguments)
+		} catch let e {
+			error = e
+		}
+		
+		if let error = error {
+			try f(error)
+		}
+		
+		return result!
 	}
 }
+

@@ -97,7 +97,8 @@ public struct MockMacro: PeerMacro {
 					pattern: IdentifierPatternSyntax(identifier: makeInvocationContainerName(from: funcDecl)),
 					initializer: makeMethodInvocationContainerInitializerClause(
 						isAsync: funcDecl.isAsync,
-						isThrows: funcDecl.isThrows
+						isThrows: funcDecl.isThrows,
+						isRethrows: funcDecl.isRethrows
 					)
 				)
 			}
@@ -120,6 +121,7 @@ public struct MockMacro: PeerMacro {
 					type: makeMethodSignatureType(
 						isAsync: funcDecl.isAsync,
 						isThrows: funcDecl.isThrows,
+						isRethrows: funcDecl.isRethrows,
 						arguments: funcDecl.signature.parameterClause.parameters.map(\.type),
 						returnType: funcDecl.signature.returnClause?.type
 					)
@@ -136,6 +138,7 @@ public struct MockMacro: PeerMacro {
 						calledExpression: makeMethodSignatureExpr(
 							isAsync: funcDecl.isAsync,
 							isThrows: funcDecl.isThrows,
+							isRethrows: funcDecl.isRethrows,
 							arguments: funcDecl.signature.parameterClause.parameters.map(\.type),
 							returnType: funcDecl.signature.returnClause?.type
 						),
@@ -193,6 +196,15 @@ public struct MockMacro: PeerMacro {
 				label: "function",
 				expression: ExprSyntax(literal: funcSignatureString)
 			)
+			if funcDecl.isRethrows {
+				LabeledExprSyntax(
+					expression: ClosureExprSyntax(
+						statements: [
+							"throw $0"
+						]
+					)
+				)
+			}
 		}
 		return try CodeBlockSyntax {
 			"let arguments = \(argumentsExpression)"

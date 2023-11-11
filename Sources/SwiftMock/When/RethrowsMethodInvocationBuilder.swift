@@ -1,32 +1,32 @@
 //
-//  ThrowsMethodInvocationBuilder.swift
+//  RethrowsMethodInvocationBuilder.swift
 //
 //
 //  Created by Alexandr Zalutskiy on 20/10/2023.
 //
 
-public final class ThrowsMethodInvocationBuilder<Arguments, Result> {
+public final class RethrowsMethodInvocationBuilder<Arguments, Result> {
 	let argumentMatcher: ArgumentMatcher<Arguments>
-	let register: (ThrowsMethodInvocation<Arguments, Result>) -> Void
+	let register: (RethrowsMethodInvocation<Arguments, Result>) -> Void
 	
-	var invocation: ThrowsMethodInvocation<Arguments, Result>?
+	var invocation: RethrowsMethodInvocation<Arguments, Result>?
 	
 	init(
 		argumentMatcher: @escaping ArgumentMatcher<Arguments>,
-		register: @escaping (ThrowsMethodInvocation<Arguments, Result>) -> Void
+		register: @escaping (RethrowsMethodInvocation<Arguments, Result>) -> Void
 	) {
 		self.argumentMatcher = argumentMatcher
 		self.register = register
 	}
 }
 
-public extension ThrowsMethodInvocationBuilder {
+public extension RethrowsMethodInvocationBuilder {
 	@discardableResult
 	func thenReturn(_ evaluation: @escaping (Arguments) throws -> Result) -> Self {
 		if let invocation = invocation {
 			invocation.append(evaluation)
 		} else {
-			let invocation = ThrowsMethodInvocation(
+			let invocation = RethrowsMethodInvocation(
 				matcher: argumentMatcher,
 				evaluation: evaluation
 			)
@@ -47,7 +47,7 @@ public extension ThrowsMethodInvocationBuilder {
 	}
 }
 
-public extension ThrowsMethodInvocationBuilder where Result == Void {
+public extension RethrowsMethodInvocationBuilder where Result == Void {
 	@discardableResult
 	func thenReturn() -> Self {
 		thenReturn(())

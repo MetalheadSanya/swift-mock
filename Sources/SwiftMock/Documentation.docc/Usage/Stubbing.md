@@ -332,3 +332,29 @@ func test() async throws {
 	mock.testEscaping { print($0 }
 }
 ```
+
+### Rethrows Method Stubbing
+
+Rethrows method stubbing is no different from throws method stubbing.
+
+```swift
+@Mock
+protocol MethodProtocol {
+	func rethrowsMethod(_ f: @escaping () throws -> Void) rethrows
+}
+
+func testRethrowsMethodThrow() throws {
+	let mock = MethodProtocolMock()
+
+	when(mock.$rethrowsMethod())
+		.thenThrow(CustomError.unknown)
+
+	XCTAssertThrowsError(
+		try mock.rethrowsMethod { throw CustomError.unknown }
+	)
+
+	verify(mock).rethrowsMethod()
+}
+```
+
+> Warning: If you use thenThrow and pass a method to the mock that does not throw errors, then your test will fail. Unfortunately, it is not possible to determine which method you passed.

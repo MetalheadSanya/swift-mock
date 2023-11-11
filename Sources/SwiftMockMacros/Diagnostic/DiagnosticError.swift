@@ -21,8 +21,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	
 	// TODO: support for generic where clause
 	case genericWhereClauseIsNotSupported
-	// TODO: support for rethrows
-	case rethrowsIsNotSupported
 	// TODO: support for reasync
 	case reasyncIsNotSupported
 	
@@ -55,8 +53,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return .error
 			
 		case .genericWhereClauseIsNotSupported:
-			return .error
-		case .rethrowsIsNotSupported:
 			return .error
 		case .reasyncIsNotSupported:
 			return .error
@@ -96,8 +92,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			
 		case .genericWhereClauseIsNotSupported:
 			return "'@Mock' doesn't support generic where clause"
-		case .rethrowsIsNotSupported:
-			return "'@Mock' doesn't support rethrows methods"
 		case .reasyncIsNotSupported:
 			return "'@Mock' doesn't support reasync methods"
 			

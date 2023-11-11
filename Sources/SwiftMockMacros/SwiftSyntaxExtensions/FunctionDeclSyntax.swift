@@ -15,4 +15,8 @@ extension FunctionDeclSyntax {
 	var isThrows: Bool {
 		signature.isThrows
 	}
+	
+	var isRethrows: Bool {
+		signature.isRethrows
+	}
 }

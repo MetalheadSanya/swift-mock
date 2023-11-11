@@ -7,6 +7,7 @@ extension MockMacro {
 	static func makeMethodInvocationType(
 		isAsync: Bool = false,
 		isThrows: Bool = false,
+		isRethrows: Bool = false,
 		arguments: [TypeSyntax] = [],
 		returnType: TypeSyntax? = nil
 	) -> TypeSyntax {
@@ -14,6 +15,7 @@ extension MockMacro {
 			baseName: .identifier("MethodInvocation"),
 			isAsync: isAsync,
 			isThrows: isThrows,
+			isRethrows: isRethrows,
 			arguments: arguments,
 			returnType: returnType
 		)
@@ -22,6 +24,7 @@ extension MockMacro {
 	static func makeMethodSignatureType(
 		isAsync: Bool = false,
 		isThrows: Bool = false,
+		isRethrows: Bool = false,
 		arguments: [TypeSyntax] = [],
 		returnType: TypeSyntax? = nil
 	) -> TypeSyntax {
@@ -29,6 +32,7 @@ extension MockMacro {
 			baseName: .identifier("MethodSignature"),
 			isAsync: isAsync,
 			isThrows: isThrows,
+			isRethrows: isRethrows,
 			arguments: arguments,
 			returnType: returnType
 		)
@@ -51,10 +55,11 @@ extension MockMacro {
 		baseName: TokenSyntax,
 		isAsync: Bool,
 		isThrows: Bool,
+		isRethrows: Bool,
 		arguments: [TypeSyntax],
 		returnType: TypeSyntax?
 	) -> TypeSyntax {
-		let type = makeTokenWithPrefix(isAsync: isAsync, isThrows: isThrows, token: baseName)
+		let type = makeTokenWithPrefix(isAsync: isAsync, isThrows: isThrows, isRethrows: isRethrows, token: baseName)
 		return TypeSyntax(
 			IdentifierTypeSyntax(
 				name: type,
@@ -66,6 +71,7 @@ extension MockMacro {
 	static func makeMethodSignatureExpr(
 		isAsync: Bool = false,
 		isThrows: Bool = false,
+		isRethrows: Bool = false,
 		arguments: [TypeSyntax] = [],
 		returnType: TypeSyntax? = nil
 	) -> ExprSyntax {
@@ -73,6 +79,7 @@ extension MockMacro {
 			baseName: "MethodSignature",
 			isAsync: isAsync,
 			isThrows: isThrows,
+			isRethrows: isRethrows,
 			arguments: arguments,
 			returnType: returnType
 		)
@@ -82,10 +89,11 @@ extension MockMacro {
 		baseName: TokenSyntax,
 		isAsync: Bool,
 		isThrows: Bool,
+		isRethrows: Bool,
 		arguments: [TypeSyntax],
 		returnType: TypeSyntax?
 	) -> ExprSyntax {
-		let type = makeTokenWithPrefix(isAsync: isAsync, isThrows: isThrows, token: baseName)
+		let type = makeTokenWithPrefix(isAsync: isAsync, isThrows: isThrows, isRethrows: isRethrows, token: baseName)
 		return ExprSyntax(
 			fromProtocol: GenericSpecializationExprSyntax(
 				expression: DeclReferenceExprSyntax(baseName: type),
@@ -97,11 +105,15 @@ extension MockMacro {
 	static func makeTokenWithPrefix(
 		isAsync: Bool,
 		isThrows: Bool,
+		isRethrows: Bool,
 		token: TokenSyntax
 	) -> TokenSyntax {
 		var name = token.text
 		if isThrows {
 			name = "Throws" + name
+		}
+		if isRethrows {
+			name = "Rethrows" + name
 		}
 		if isAsync {
 			name = "Async" + name
@@ -215,11 +227,13 @@ extension MockMacro {
 	
 	private static func makeMethodInvocationContainerType(
 		isAsync: Bool,
-		isThrows: Bool
+		isThrows: Bool,
+		isRethrows: Bool
 	) -> TypeSyntax {
 		let token = makeTokenWithPrefix(
 			isAsync: isAsync,
 			isThrows: isThrows,
+			isRethrows: isRethrows,
 			token: .identifier("MethodInvocationContainer")
 		)
 		return TypeSyntax(
@@ -229,25 +243,29 @@ extension MockMacro {
 	
 	private static func makeMethodInvocationContainerTypeExpr(
 		isAsync: Bool,
-		isThrows: Bool
+		isThrows: Bool,
+		isRethrows: Bool
 	) -> TypeExprSyntax {
 		TypeExprSyntax(
 			type: makeMethodInvocationContainerType(
 				isAsync: isAsync,
-				isThrows: isThrows
+				isThrows: isThrows,
+				isRethrows: isRethrows
 			)
 		)
 	}
 	
 	static func makeMethodInvocationContainerInitializerClause(
 		isAsync: Bool,
-		isThrows: Bool
+		isThrows: Bool,
+		isRethrows: Bool
 	) -> InitializerClauseSyntax {
 		InitializerClauseSyntax(
 			value: FunctionCallExprSyntax(
 				calledExpression: makeMethodInvocationContainerTypeExpr(
 					isAsync: isAsync,
-					isThrows: isThrows
+					isThrows: isThrows,
+					isRethrows: isRethrows
 				),
 				leftParen: .leftParenToken(),
 				rightParen: .rightParenToken()

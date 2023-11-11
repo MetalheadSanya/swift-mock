@@ -132,32 +132,6 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		#endif
 	}
 	
-	func testRethrowsMethod() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			public protocol Test {
-				func test(_ callback: () throws -> Void) rethrows
-			}
-			""",
-			expandedSource:
-			"""
-			public protocol Test {
-				func test(_ callback: () throws -> Void) rethrows
-			}
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' doesn't support rethrows methods", line: 3, column: 43)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
-	
 	func testReasyncMethod() throws {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(

@@ -28,6 +28,10 @@ extension TokenSyntax {
 		trimmed.text == TokenSyntax.keyword(.reasync).text
 	}
 	
+	var isThrows: Bool {
+		trimmed.text == TokenSyntax.keyword(.throws).text
+	}
+	
 	var isRethrows: Bool {
 		trimmed.text == TokenSyntax.keyword(.rethrows).text
 	}

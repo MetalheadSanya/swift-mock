@@ -16,11 +16,6 @@ extension Diagnostic {
 				let diagnostic = Diagnostic(node: asyncSpecifier, message: DiagnosticMessage.reasyncIsNotSupported)
 				throw DiagnosticError(diagnostic: diagnostic)
 			}
-			
-			if let throwsSpecifier = effectSpecifiers.throwsSpecifier, throwsSpecifier.isRethrows {
-				let diagnostic = Diagnostic(node: throwsSpecifier, message: DiagnosticMessage.rethrowsIsNotSupported)
-				throw DiagnosticError(diagnostic: diagnostic)
-			}
 		}
 		
 		if let genericWhereClause = declaration.genericWhereClause {
