@@ -17,8 +17,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 	case filePrivate
 	// TODO: #12 support for method attributes
 	case attributesIsNotSupported
-	// TODO: support primary associated types
-	case primaryAssociatedTypesIsNotSupported
 	case inheritanceIsNotSupported
 	
 	// TODO: support for generic where clause
@@ -52,8 +50,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 		case .filePrivate:
 			return .error
 		case .attributesIsNotSupported:
-			return .error
-		case .primaryAssociatedTypesIsNotSupported:
 			return .error
 		case .inheritanceIsNotSupported:
 			return .error
@@ -95,8 +91,6 @@ enum DiagnosticMessage: String, SwiftDiagnostics.DiagnosticMessage {
 			return "'@Mock' cannot be applied to a 'fileprivate protocol'"
 		case .attributesIsNotSupported:
 			return "'@Mock' doesn't support method attributes"
-		case .primaryAssociatedTypesIsNotSupported:
-			return "'@Mock' cannot be applied to a 'protocol' with primary associated types"
 		case .inheritanceIsNotSupported:
 			return "'@Mock' can only be applied to a non-inherited 'protocol'"
 			

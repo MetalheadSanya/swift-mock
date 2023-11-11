@@ -56,7 +56,7 @@ final class MockMacroMethodTests: XCTestCase {
 							self.test___.append($0)
 						})
 				}
-					func test(_ f: @escaping (Int) -> Void) {
+				func test(_ f: @escaping (Int) -> Void) {
 					let arguments = (f)
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "test(_:)")
 					return test___.find(with: arguments, type: "TestMock", function: "test(_:)")
@@ -109,7 +109,7 @@ final class MockMacroMethodTests: XCTestCase {
 							self.test___.append($0)
 						})
 				}
-					func test(_ f: (Int) -> Void) {
+				func test(_ f: (Int) -> Void) {
 					let arguments = (NonEscapingFunction())
 					container.append(mock: self, call: MethodCall(arguments: arguments), function: "test(_:)")
 					return test___.find(with: arguments, type: "TestMock", function: "test(_:)")

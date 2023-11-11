@@ -84,28 +84,6 @@ final class MockMacroDiagnosticTests: XCTestCase {
 		#endif
 	}
 	
-	func testProtocolWithPrimaryAssociatedTypesDiagnostic() throws {
-		#if canImport(SwiftMockMacros)
-		assertMacroExpansion(
-			"""
-			@Mock
-			public protocol Test<T> { }
-			""",
-			expandedSource:
-			"""
-			public protocol Test<T> { }
-			""",
-			diagnostics: [
-				DiagnosticSpec(message: "'@Mock' cannot be applied to a 'protocol' with primary associated types", line: 2, column: 21)
-			],
-			macros: testMacros,
-			indentationWidth: .tab
-		)
-		#else
-		throw XCTSkip("macros are only supported when running tests for the host platform")
-		#endif
-	}
-	
 	func testInheritedProtocolDiagnostic() throws {
 		#if canImport(SwiftMockMacros)
 		assertMacroExpansion(
