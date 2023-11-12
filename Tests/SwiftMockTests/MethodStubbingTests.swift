@@ -55,6 +55,9 @@ protocol ClosureProtocol {
 protocol MethodProtocol {
 	func rethrowsMethod(_ f: @escaping () throws -> Void) rethrows
 	func asyncRethrowsMethod(_ f: @escaping () throws -> Void) async rethrows
+	
+	func anyMethod(_ f: any Equatable)
+	func someMethod(_ f: some Equatable)
 }
 
 final class MethodStubbingTests: XCTestCase {
@@ -330,5 +333,27 @@ final class MethodStubbingTests: XCTestCase {
 		XCTAssertNotNil(catchedError)
 		
 		verify(mock).asyncRethrowsMethod()
+	}
+	
+	func testAnyArgument() {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$anyMethod())
+			.thenReturn()
+		
+		mock.anyMethod(8)
+		
+		verify(mock).anyMethod()
+	}
+	
+	func testSomeArgument() {
+		let mock = MethodProtocolMock()
+		
+		when(mock.$someMethod())
+			.thenReturn()
+		
+		mock.someMethod(5)
+		
+		verify(mock).someMethod()
 	}
 }

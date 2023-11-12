@@ -261,6 +261,9 @@ public struct MockMacro: PeerMacro {
 			if functionParameter.type.as(FunctionTypeSyntax.self) != nil {
 				return "NonEscapingFunction()"
 			}
+			else if let parameterType = functionParameter.type.as(SomeOrAnyTypeSyntax.self), parameterType.someOrAnySpecifier.isSome {
+				return "\(functionParameter.secondName ?? functionParameter.firstName) as any \(parameterType.constraint)"
+			}
 			return ExprSyntax(
 				DeclReferenceExprSyntax(baseName: functionParameter.secondName ?? functionParameter.firstName)
 			)

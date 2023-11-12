@@ -190,6 +190,15 @@ extension MockMacro {
 			}
 		}
 		
+		if let type = type.as(SomeOrAnyTypeSyntax.self) {
+			return TypeSyntax(
+					SomeOrAnyTypeSyntax(
+						someOrAnySpecifier: TokenSyntax.keyword(.any),
+						constraint: type.constraint
+					)
+			)
+		}
+		
 		// Check on nonescaping func, if non-escaping, use NonEscapingFunction
 		if type.as(FunctionTypeSyntax.self) != nil {
 			return TypeSyntax(
