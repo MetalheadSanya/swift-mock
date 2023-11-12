@@ -44,6 +44,10 @@ extension TokenSyntax {
 		trimmed.text == TokenSyntax.keyword(.set).text
 	}
 	
+	var isSome: Bool {
+		trimmed.text == TokenSyntax.keyword(.some).text
+	}
+	
 	var isAnyObject: Bool {
 		trimmed.text == "AnyObject"
 	}
