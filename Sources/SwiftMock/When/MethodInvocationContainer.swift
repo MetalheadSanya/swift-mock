@@ -17,7 +17,9 @@ public final class MethodInvocationContainer {
 	public func find<Arguments, Result>(
 		with arguments: Arguments,
 		type: String,
-		function: String
+		function: String,
+		file: StaticString = #filePath,
+		line: UInt = #line
 	) -> Result {
 		let invocations = invocations.compactMap {
 			$0 as? MethodInvocation<Arguments, Result>
@@ -25,7 +27,7 @@ public final class MethodInvocationContainer {
 		guard let invocation = invocations.last(where: { invocation in
 			invocation.match(arguments)
 		}) else {
-			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)", #file, #line)
+			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)", file, line)
 			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
 		}
 		return invocation.eval(arguments)

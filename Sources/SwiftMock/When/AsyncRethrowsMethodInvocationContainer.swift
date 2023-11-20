@@ -18,7 +18,9 @@ public final class AsyncRethrowsMethodInvocationContainer {
 		with arguments: Arguments,
 		type: String,
 		function: String,
-		_ f: (Error) throws -> Void
+		_ f: (Error) throws -> Void,
+		file: StaticString = #filePath,
+		line: UInt = #line
 	) async rethrows -> Result {
 		let invocations = invocations.compactMap {
 			$0 as? AsyncRethrowsMethodInvocation<Arguments, Result>
@@ -26,7 +28,7 @@ public final class AsyncRethrowsMethodInvocationContainer {
 		guard let invocation = invocations.last(where: { invocation in
 			invocation.match(arguments)
 		}) else {
-			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)", #file, #line)
+			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)", file, line)
 			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
 		}
 		return try await invocation.eval(arguments, f)
