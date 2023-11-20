@@ -25,7 +25,7 @@ public final class MethodInvocationContainer {
 		guard let invocation = invocations.last(where: { invocation in
 			invocation.match(arguments)
 		}) else {
-			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)")
+			testFailureReport("\(type).\(function): could not find invocation for arguments: \(arguments)", #file, #line)
 			fatalError("\(type).\(function): could not find invocation for arguments: \(arguments)")
 		}
 		return invocation.eval(arguments)

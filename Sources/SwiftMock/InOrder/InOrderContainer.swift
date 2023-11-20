@@ -33,7 +33,9 @@ class InOrderContainer: CallContainer {
 		matcher match: ArgumentMatcher<T>,
 		times: (Int) -> Bool,
 		type: String,
-		function: String
+		function: String,
+		file: StaticString,
+		line: UInt
 	) {
 		var callCount = 0
 		
@@ -42,7 +44,7 @@ class InOrderContainer: CallContainer {
 		let functions = InOrderContainer.functions
 		
 		guard startIndex < calls.count else {
-			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)")
+			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)", file, line)
 			return
 		}
 		
@@ -66,7 +68,7 @@ class InOrderContainer: CallContainer {
 			lastCheckedIndex = index
 		}
 		guard times(callCount) else {
-			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)")
+			testFailureReport("\(type).\(function): incorrect calls count: \(callCount)", file, line)
 			return
 		}
 		

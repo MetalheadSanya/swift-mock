@@ -11,7 +11,7 @@ import XCTest
 public enum SwiftMockConfiguration {
 	public static func setUp() {
 		testFailureReport = {
-			XCTFail($0)
+			XCTFail($0, file: $1, line: $2)
 		}
 	}
 	

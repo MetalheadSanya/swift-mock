@@ -62,8 +62,4 @@ extension TypeSyntax {
 		}
 		return self.name.trimmed.text == TokenSyntax.keyword(.escaping).text
 	}
-	
-	var text: String {
-		String(trimmed.syntaxTextBytes.map { Unicode.Scalar($0) }.map { Character($0) })
-	}
 }

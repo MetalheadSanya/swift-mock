@@ -105,9 +105,9 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call() -> Void {
+						func call(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call()")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call()", file: file, line: line)
 					}
 				}
 				public init() {
@@ -161,9 +161,9 @@ final class MockMacroTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func propGetter() {
+					public func propGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop", file: file, line: line)
 					}
 				}
 				public init() {
@@ -217,13 +217,13 @@ final class MockMacroTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func propGetter() {
+					public func propGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop", file: file, line: line)
 					}
-					public func propSetter(_ value: @escaping ArgumentMatcher<Int>) {
+					public func propSetter(_ value: @escaping ArgumentMatcher<Int>, file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0 = value
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop=")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop=", file: file, line: line)
 					}
 				}
 				public init() {
@@ -289,9 +289,9 @@ final class MockMacroTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func propGetter() {
+					public func propGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop throws")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop throws", file: file, line: line)
 					}
 				}
 				public init() {
@@ -345,9 +345,9 @@ final class MockMacroTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func propGetter() {
+					public func propGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async", file: file, line: line)
 					}
 				}
 				public init() {
@@ -401,9 +401,9 @@ final class MockMacroTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func propGetter() {
+					public func propGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async throws")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "prop async throws", file: file, line: line)
 					}
 				}
 				public init() {
@@ -458,9 +458,9 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call() -> Void {
+						func call(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call() -> Int")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call() -> Int", file: file, line: line)
 					}
 				}
 				public init() {
@@ -515,9 +515,9 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call(argument: @escaping ArgumentMatcher<Int> = any()) -> Void {
+						func call(argument: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = argument
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument:)", file: file, line: line)
 					}
 				}
 				public init() {
@@ -572,10 +572,10 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
+						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:)", file: file, line: line)
 					}
 				}
 				public init() {
@@ -631,10 +631,10 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
+						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) throws -> Int")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) throws -> Int", file: file, line: line)
 					}
 				}
 				public init() {
@@ -690,10 +690,10 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
+						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async -> Int")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async -> Int", file: file, line: line)
 					}
 				}
 				public init() {
@@ -749,10 +749,10 @@ final class MockMacroTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any()) -> Void {
+						func call(argument0: @escaping ArgumentMatcher<Int> = any(), argument1: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher1 = argument1
 						let argumentMatcher0 = zip(argument0, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call(argument0:argument1:) async throws -> Int", file: file, line: line)
 					}
 				}
 				public init() {
