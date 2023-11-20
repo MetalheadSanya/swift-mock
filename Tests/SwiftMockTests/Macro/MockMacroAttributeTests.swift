@@ -115,9 +115,9 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func dynamicallyCall(withArguments phoneNumber: @escaping ArgumentMatcher<[Int]> = any()) -> Void {
+						func dynamicallyCall(withArguments phoneNumber: @escaping ArgumentMatcher<[Int]> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = phoneNumber
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "dynamicallyCall(withArguments:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "dynamicallyCall(withArguments:)", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -170,9 +170,9 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					func subscriptGetter(dynamicMember member: @escaping ArgumentMatcher<String> = any()) {
+					func subscriptGetter(dynamicMember member: @escaping ArgumentMatcher<String> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0 = member
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "SomeProtocolMock", function: "subscript(dynamicMember member: String) -> Int { get }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "SomeProtocolMock", function: "subscript(dynamicMember member: String) -> Int { get }", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -227,9 +227,9 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					func testGetter() {
+					func testGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -283,9 +283,9 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					func testGetter() {
+					func testGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -339,9 +339,9 @@ final class MockMacroAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					func testGetter() {
+					func testGetter(file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TelephoneExchangeMock", function: "test", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()

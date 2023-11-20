@@ -25,10 +25,10 @@ public struct InOrder {
 	///	- Returns: `Verify` structure specific to the passed mock object.
 	///
 	///	- Note: You don't have to verify all interactions one-by-one but only those that you are interested in testing in order.
-	public func verify<Mock: AnyObject & Verifiable>(_ mock: Mock, times: @escaping TimesMatcher = times(1)) -> Mock.Verify {
+	public func verify<Mock: AnyObject & Verifiable>(_ mock: Mock, times: @escaping TimesMatcher = times(1), file: StaticString = #filePath, line: UInt = #line) -> Mock.Verify {
 		guard mocks.contains(where: { $0 === mock }) else {
-			testFailureReport("")
-			fatalError("")
+			testFailureReport("The 'InOrder' doesn't contains such a mock", file, line)
+			fatalError("The 'InOrder' doesn't contains such a mock", file: (file), line: line)
 		}
 		
 		return Mock.Verify(mock: mock, container: container, times: times)

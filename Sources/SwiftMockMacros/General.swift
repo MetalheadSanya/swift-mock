@@ -4,23 +4,6 @@ import SwiftSyntaxBuilder
 extension MockMacro {
 	// MARK: - Making Method Wrapper Types
 	
-	static func makeMethodInvocationType(
-		isAsync: Bool = false,
-		isThrows: Bool = false,
-		isRethrows: Bool = false,
-		arguments: [TypeSyntax] = [],
-		returnType: TypeSyntax? = nil
-	) -> TypeSyntax {
-		makeMethodWrapperType(
-			baseName: .identifier("MethodInvocation"),
-			isAsync: isAsync,
-			isThrows: isThrows,
-			isRethrows: isRethrows,
-			arguments: arguments,
-			returnType: returnType
-		)
-	}
-	
 	static func makeMethodSignatureType(
 		isAsync: Bool = false,
 		isThrows: Bool = false,
@@ -35,19 +18,6 @@ extension MockMacro {
 			isRethrows: isRethrows,
 			arguments: arguments,
 			returnType: returnType
-		)
-	}
-	
-	static func makeMethodCallType(
-		arguments: [TypeSyntax]
-	) -> TypeSyntax {
-		TypeSyntax(
-			fromProtocol: IdentifierTypeSyntax(
-				name: .identifier("MethodCall"),
-				genericArgumentClause: GenericArgumentClauseSyntax {
-					GenericArgumentSyntax(argument: makeTupleType(from: arguments))
-				}
-			)
 		)
 	}
 	

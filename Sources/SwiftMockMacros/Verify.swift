@@ -95,7 +95,14 @@ extension MockMacro {
 				if protocolDecl.isPublic { .public }
 			})
 			.with(\.signature, FunctionSignatureSyntax(
-				parameterClause: wrapToArgumentMatcher(funcDecl.signature.parameterClause),
+				parameterClause: FunctionParameterClauseSyntax {
+					for parameter in wrapToArgumentMatcher(funcDecl.signature.parameterClause.parameters) {
+						parameter
+					}
+					for paramter in makeFileAndLineParameterClause() {
+						paramter
+					}
+				},
 				returnClause: ReturnClauseSyntax(type: IdentifierTypeSyntax(name: .identifier("Void")))
 			))
 			.with(\.body, makeVerifyBody(
@@ -173,7 +180,11 @@ extension MockMacro {
 		let functionParameterClause: FunctionParameterClauseSyntax
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
-			functionParameterClause = FunctionParameterClauseSyntax { }
+			functionParameterClause = FunctionParameterClauseSyntax { 
+				for property in makeFileAndLineParameterClause() {
+					property
+				}
+			}
 		case TokenSyntax.keyword(.set).text:
 			functionParameterClause = FunctionParameterClauseSyntax {
 				FunctionParameterSyntax(
@@ -183,6 +194,9 @@ extension MockMacro {
 						type: wrapToArgumentMatcherType(type: propertyType)
 					)
 				)
+				for property in makeFileAndLineParameterClause() {
+					property
+				}
 			}
 		default:
 			fatalError("Unexpected accessor for property. Supported accessors: \"get\" and \"set\"")
@@ -262,13 +276,23 @@ extension MockMacro {
 		let functionParameterClause: FunctionParameterClauseSyntax
 		switch accessorDecl.accessorSpecifier.trimmed.text {
 		case TokenSyntax.keyword(.get).text:
-			functionParameterClause = wrapToArgumentMatcher(subscriptDecl.parameterClause)
+			functionParameterClause = FunctionParameterClauseSyntax{
+				for parameter in wrapToArgumentMatcher(subscriptDecl.parameterClause.parameters) {
+					parameter
+				}
+				for parameter in makeFileAndLineParameterClause() {
+					parameter
+				}
+			}
 		case TokenSyntax.keyword(.set).text:
 			functionParameterClause = FunctionParameterClauseSyntax {
 				for parameter in wrapToArgumentMatcher(subscriptDecl.parameterClause).parameters {
 					parameter
 				}
 				wrapToArgumentMatcher(FunctionParameterSyntax(firstName: "newValue", type: returnType))
+				for parameter in makeFileAndLineParameterClause() {
+					parameter
+				}
 			}
 		default:
 			let diagnostic = Diagnostic(node: accessorDecl, message: DiagnosticMessage.subscriptAccessorMustBeGetOrSet)
@@ -328,7 +352,30 @@ extension MockMacro {
 					label: "function",
 					expression: funcSignatureExpr
 				)
+				LabeledExprSyntax(
+					label: "file",
+					expression: ExprSyntax(stringLiteral: "file")
+				)
+				LabeledExprSyntax(
+					label: "line",
+					expression: ExprSyntax(stringLiteral: "line")
+				)
 			}
+		}
+	}
+	
+	private static func makeFileAndLineParameterClause() -> FunctionParameterListSyntax {
+		FunctionParameterListSyntax {
+			FunctionParameterSyntax(
+				firstName: "file",
+				type: TypeSyntax(stringLiteral: "StaticString"),
+				defaultValue: InitializerClauseSyntax(value: ExprSyntax(stringLiteral: "#filePath"))
+			)
+			FunctionParameterSyntax(
+				firstName: "line",
+				type: TypeSyntax(stringLiteral: "UInt"),
+				defaultValue: InitializerClauseSyntax(value: ExprSyntax(stringLiteral: "#line"))
+			)
 		}
 	}
 	

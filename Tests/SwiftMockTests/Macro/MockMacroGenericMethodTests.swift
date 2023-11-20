@@ -37,9 +37,9 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call<T>(_ argument: @escaping ArgumentMatcher<T> = any()) -> Void {
+						func call<T>(_ argument: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = argument
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:)", file: file, line: line)
 					}
 				}
 				public init() {
@@ -94,9 +94,9 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call<T>(_ argument: @escaping ArgumentMatcher<T> = any()) -> Void {
+						func call<T>(_ argument: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = argument
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:) -> T")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T>(_:) -> T", file: file, line: line)
 					}
 				}
 				public init() {
@@ -151,9 +151,9 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call<T: Equitable & Hashable>(_ argument: @escaping ArgumentMatcher<T> = any()) -> Void {
+						func call<T: Equitable & Hashable>(_ argument: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = argument
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) -> T")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) -> T", file: file, line: line)
 					}
 				}
 				public init() {
@@ -208,9 +208,9 @@ final class MockMacroGenericMethodTests: XCTestCase {
 						self.times = times
 					}
 					public
-						func call<T: Equitable & Hashable>(_ argument: @escaping ArgumentMatcher<T> = any()) -> Void {
+						func call<T: Equitable & Hashable>(_ argument: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = argument
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) async throws -> T")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "call<T: Equitable & Hashable>(_:) async throws -> T", file: file, line: line)
 					}
 				}
 				public init() {

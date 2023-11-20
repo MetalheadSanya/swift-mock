@@ -43,9 +43,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<(Int) -> Void> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<(Int) -> Void> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -96,9 +96,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<NonEscapingFunction> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<NonEscapingFunction> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -149,9 +149,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<(Int) throws -> Void> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<(Int) throws -> Void> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:) rethrows")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:) rethrows", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -204,9 +204,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<(Int) throws -> Void> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<(Int) throws -> Void> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:) async rethrows")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:) async rethrows", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -259,9 +259,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<any Equatable> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<any Equatable> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -312,9 +312,9 @@ final class MockMacroMethodTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test(_ f: @escaping ArgumentMatcher<any Equatable> = any()) -> Void {
+						func test(_ f: @escaping ArgumentMatcher<any Equatable> = any(), file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0 = f
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test(_:)", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()

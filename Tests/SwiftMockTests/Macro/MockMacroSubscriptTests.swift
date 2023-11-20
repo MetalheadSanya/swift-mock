@@ -36,9 +36,9 @@ final class MockMacroSubscriptTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func subscriptGetter(_ value: @escaping ArgumentMatcher<Int> = any()) {
+					public func subscriptGetter(_ value: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0 = value
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get }", file: file, line: line)
 					}
 				}
 				public init() {
@@ -94,14 +94,14 @@ final class MockMacroSubscriptTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func subscriptGetter(_ value: @escaping ArgumentMatcher<Int> = any()) {
+					public func subscriptGetter(_ value: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0 = value
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get set }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get set }", file: file, line: line)
 					}
-					public func subscriptSetter(_ value: @escaping ArgumentMatcher<Int> = any(), newValue: @escaping ArgumentMatcher<Int> = any()) {
+					public func subscriptSetter(_ value: @escaping ArgumentMatcher<Int> = any(), newValue: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher1 = newValue
 						let argumentMatcher0 = zip(value, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get set }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value: Int) -> Int { get set }", file: file, line: line)
 					}
 				}
 				public init() {
@@ -170,14 +170,14 @@ final class MockMacroSubscriptTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func subscriptGetter<T: Equitable>(_ value: @escaping ArgumentMatcher<T> = any()) {
+					public func subscriptGetter<T: Equitable>(_ value: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher0 = value
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript<T: Equitable>(_ value: T) -> T { get set }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript<T: Equitable>(_ value: T) -> T { get set }", file: file, line: line)
 					}
-					public func subscriptSetter<T: Equitable>(_ value: @escaping ArgumentMatcher<T> = any(), newValue: @escaping ArgumentMatcher<T> = any()) {
+					public func subscriptSetter<T: Equitable>(_ value: @escaping ArgumentMatcher<T> = any(), newValue: @escaping ArgumentMatcher<T> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher1 = newValue
 						let argumentMatcher0 = zip(value, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript<T: Equitable>(_ value: T) -> T { get set }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript<T: Equitable>(_ value: T) -> T { get set }", file: file, line: line)
 					}
 				}
 				public init() {
@@ -246,10 +246,10 @@ final class MockMacroSubscriptTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-					public func subscriptGetter(_ value0: @escaping ArgumentMatcher<Int> = any(), _ value1: @escaping ArgumentMatcher<Int> = any()) {
+					public func subscriptGetter(_ value0: @escaping ArgumentMatcher<Int> = any(), _ value1: @escaping ArgumentMatcher<Int> = any(), file: StaticString = #filePath, line: UInt = #line) {
 						let argumentMatcher1 = value1
 						let argumentMatcher0 = zip(value0, argumentMatcher1)
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value0: Int, _ value1: Int) -> Int { get }")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "subscript(_ value0: Int, _ value1: Int) -> Int { get }", file: file, line: line)
 					}
 				}
 				public init() {
@@ -276,8 +276,8 @@ final class MockMacroSubscriptTests: XCTestCase {
 			macros: testMacros,
 			indentationWidth: .tab
 		)
-#else
+		#else
 		throw XCTSkip("macros are only supported when running tests for the host platform")
-#endif
+		#endif
 	}
 }

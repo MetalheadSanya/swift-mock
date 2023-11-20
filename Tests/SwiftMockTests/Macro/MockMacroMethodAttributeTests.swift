@@ -46,9 +46,9 @@ final class MockMacroMethodAttributeTests: XCTestCase {
 						self.times = times
 					}
 						@available(iOS, introduced: 15.1)
-						func test() -> Void {
+						func test(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -103,9 +103,9 @@ final class MockMacroMethodAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test() -> Void {
+						func test(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -159,9 +159,9 @@ final class MockMacroMethodAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test() -> Void {
+						func test(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()
@@ -215,9 +215,9 @@ final class MockMacroMethodAttributeTests: XCTestCase {
 						self.container = container
 						self.times = times
 					}
-						func test() -> Void {
+						func test(file: StaticString = #filePath, line: UInt = #line) -> Void {
 						let argumentMatcher0: ArgumentMatcher<()> = any()
-						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()")
+						container.verify(mock: mock, matcher: argumentMatcher0, times: times, type: "TestMock", function: "test()", file: file, line: line)
 					}
 				}
 				let container = VerifyContainer()

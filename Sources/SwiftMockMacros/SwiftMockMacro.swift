@@ -246,12 +246,16 @@ public struct MockMacro: PeerMacro {
 		)
 	}
 	
-	static func wrapToArgumentMatcher(_ parameterClause: FunctionParameterClauseSyntax) -> FunctionParameterClauseSyntax {
-		parameterClause.with(\.parameters, FunctionParameterListSyntax {
-			for parameter in parameterClause.parameters {
+	static func wrapToArgumentMatcher(_ parameterListSyntax: FunctionParameterListSyntax) -> FunctionParameterListSyntax {
+		FunctionParameterListSyntax {
+			for parameter in parameterListSyntax {
 				wrapToArgumentMatcher(parameter)
 			}
-		})
+		}
+	}
+	
+	static func wrapToArgumentMatcher(_ parameterClause: FunctionParameterClauseSyntax) -> FunctionParameterClauseSyntax {
+		parameterClause.with(\.parameters, wrapToArgumentMatcher(parameterClause.parameters))
 	}
 	
 	static func packParametersToTupleExpr<T: BidirectionalCollection>(
