@@ -9,7 +9,7 @@ public final class AsyncMethodInvocation<Arguments, Result> {
 	
 	public init(
 		matcher: @escaping ArgumentMatcher<Arguments>,
-		evaluation: @escaping (Arguments) -> Result
+		evaluation: @escaping (Arguments) async -> Result
 	) {
 		self.match = matcher
 		self.evaluations = [evaluation]

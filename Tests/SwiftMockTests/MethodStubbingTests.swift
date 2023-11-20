@@ -100,7 +100,7 @@ final class MethodStubbingTests: XCTestCase {
 		let expectationOne = 8
 		let expectationTwo = 11
 		when(mock.$call())
-			.thenReturn { (argument, _) in argument }
+			.thenAnswer { (argument, _) in argument }
 			.thenReturn(expectationTwo)
 		let actualOne = mock.call(argument0: expectationOne, argument1: 0)
 		let actualTwo = mock.call(argument0: 0, argument1: 0)
