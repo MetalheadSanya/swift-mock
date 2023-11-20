@@ -1,4 +1,5 @@
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 @Mock
@@ -9,9 +10,12 @@ protocol VerifyTestsProtocol {
 final class VerifyTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
+	}
+	
+	override func tearDown() {
+		SwiftMockConfiguration.tearDown()
+		super.tearDown()
 	}
 	
 	func testDefaultsCountDefaultArguments() {

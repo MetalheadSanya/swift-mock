@@ -1,4 +1,5 @@
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 @Mock
@@ -9,13 +10,11 @@ protocol ArgumentMatcherTestProtocol {
 final class ArgumentMatcherTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
 	}
 	
 	override func tearDown() {
-		cleanUpMock()
+		SwiftMockConfiguration.tearDown()
 		super.tearDown()
 	}
 	

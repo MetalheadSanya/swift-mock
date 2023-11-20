@@ -6,6 +6,7 @@
 //
 
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 @Mock
@@ -18,13 +19,11 @@ protocol SubscriptProtocol {
 final class SubscriptStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
 	}
 	
 	override func tearDown() {
-		cleanUpMock()
+		SwiftMockConfiguration.tearDown()
 		super.tearDown()
 	}
 	

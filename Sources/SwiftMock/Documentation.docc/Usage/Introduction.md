@@ -20,6 +20,31 @@ public protocol SomeProtocol {
 
 This macro will generate a new public type with the protocol name and the suffix `Mock`. In our example, the type name will be `SomeProtocolMock`.
 
+### Test setup
+
+In test case you should perform some actions for correct working of engine.
+
+First of all you shoud import `SwiftMockConfiguration` module.
+
+You should override `setUp()` and `tearDown()` methods. In `setUp()` method you must set `continueAfterFailure` to false and call `setUp()` function of `SwiftMockConfiguration` module. In `tearDown()` you must call `tearDown()` function of `SwiftMockConfiguration` module.
+
+```swift
+final class Tests: XCTestCase {
+	override func setUp() {
+		continueAfterFailure = false
+		SwiftMockConfiguration.setUp()
+	}
+
+	override func tearDown() {
+		SwiftMockConfiguration.tearDown()
+		super.tearDown()
+	}
+
+...
+```
+
+> Important: `continueAfterFailure` is important for correct running of test. 
+
 ### Stubbing basics
 
 Let's add the `getAlbumName()` method to our protocol, which returns the name of the album with the `String` type. And let's move on to writing the test.

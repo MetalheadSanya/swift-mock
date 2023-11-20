@@ -13,6 +13,10 @@ let package = Package(
 			name: "SwiftMock",
 			targets: ["SwiftMock"]
 		),
+		.library(
+			name: "SwiftMockConfiguration",
+			targets: ["SwiftMockConfiguration"]
+		),
 		.executable(
 			name: "SwiftMockClient",
 			targets: ["SwiftMockClient"]
@@ -37,6 +41,9 @@ let package = Package(
 		// Library that exposes a macro as part of its API, which is used in client programs.
 		.target(name: "SwiftMock", dependencies: ["SwiftMockMacros"]),
 		
+		// Library that contains configuration of engine
+		.target(name: "SwiftMockConfiguration", dependencies: ["SwiftMock"]),
+		
 		// A client of the library, which is able to use the macro in its own code.
 		.executableTarget(name: "SwiftMockClient", dependencies: [
 			.product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
@@ -49,6 +56,7 @@ let package = Package(
 			dependencies: [
 				"SwiftMock",
 				"SwiftMockMacros",
+				"SwiftMockConfiguration",
 				.product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
 			]
 		),

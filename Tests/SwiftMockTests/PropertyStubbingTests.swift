@@ -1,4 +1,5 @@
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 @Mock
@@ -29,9 +30,11 @@ protocol AsyncThrowsGetPropertyProtocol {
 final class PropertyStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
+	}
+	
+	override func tearDown() {
+		SwiftMockConfiguration.tearDown()
 	}
 	
 	func testGetProperty() {
