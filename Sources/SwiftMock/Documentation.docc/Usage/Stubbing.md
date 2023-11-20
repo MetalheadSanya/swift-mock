@@ -358,3 +358,25 @@ func testRethrowsMethodThrow() throws {
 ```
 
 > Warning: If you use thenThrow and pass a method to the mock that does not throw errors, then your test will fail. Unfortunately, it is not possible to determine which method you passed.
+
+### Answering
+
+In order to perform some more meaningful actions other than returning a value or throwing an exception, you can use the ``MethodInvocationBuilder/thenAnswer(_:)-1xn3k`` method. This method takes one argument, a function that must be called when the arguments match. You can do any action in this function and must return a value or throw an error in the same way as a normal method implementation.
+
+> Warning: Be careful, at the moment code completion will offer more than one method option, you must choose one whose number of arguments corresponds to the number of arguments of the method you are stabbing.
+
+```swift
+@Mock
+protocol TestProtocol {
+	func call(argument0: Int, argument1: Int) -> Int
+}
+
+func test() throws {
+	let mock = TestProtocolMock()
+
+	when(mock.$call())
+		.thenAnswer { argument1, argument2 in 
+			argument1 + argument2
+		}
+}
+```
