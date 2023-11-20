@@ -7,19 +7,18 @@
 
 import Foundation
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 final class InOrderTests: XCTestCase {
 	override func setUp() {
 		super.setUp()
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
 	}
 	
 	override func tearDown() {
-		cleanUpMock()
+		SwiftMockConfiguration.tearDown()
 		super.tearDown()
 	}
 	

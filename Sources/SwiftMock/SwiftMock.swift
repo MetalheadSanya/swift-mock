@@ -2,7 +2,7 @@
 public macro Mock() = #externalMacro(module: "SwiftMockMacros", type: "MockMacro")
 
 public var testFailureReport: (String) -> Void = { _ in
-	
+	assertionFailure("Please import SwiftMockConfiguration module and call 'SwiftMockConfiguration.setUp()' in 'setUp()' method of your XCTestCase subclass.")
 }
 
 public func cleanUpMock() {

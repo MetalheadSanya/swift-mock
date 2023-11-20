@@ -1,4 +1,5 @@
 import SwiftMock
+import SwiftMockConfiguration
 import XCTest
 
 enum CustomError: Error {
@@ -63,9 +64,12 @@ protocol MethodProtocol {
 final class MethodStubbingTests: XCTestCase {
 	override func setUp() {
 		continueAfterFailure = false
-		testFailureReport = { message in
-			XCTFail(message)
-		}
+		SwiftMockConfiguration.setUp()
+	}
+	
+	override func tearDown() {
+		SwiftMockConfiguration.tearDown()
+		super.tearDown()
 	}
 	
 	func testEmptyProtocol() throws {
